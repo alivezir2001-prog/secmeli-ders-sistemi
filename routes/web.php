@@ -50,3 +50,17 @@ Route::put('/yonetim/egitim-yillari/{academicYear}', [AdminAcademicYearControlle
 Route::get('/yonetim/tercihler', [AdminCourseSelectionController::class, 'index'])
     ->middleware('admin')
     ->name('admin.course-selections.index');
+
+Route::get('/yonetim/tercihler/excel', [
+    AdminCourseSelectionController::class,
+    'export'
+])
+    ->middleware('admin')
+    ->name('admin.course-selections.export');
+
+Route::get('/yonetim/tercihler/ozet-excel', [
+    AdminCourseSelectionController::class,
+    'exportSummary',
+])
+    ->middleware('admin')
+    ->name('admin.course-selections.export-summary');

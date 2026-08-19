@@ -470,6 +470,27 @@
                 Temizle
             </a>
 
+            <a
+            href="{{ route('admin.course-selections.export', request()->query()) }}"
+            class="button button-secondary"
+            >
+            Excel'e Aktar
+            </a>
+
+            <a
+            href="{{ route('admin.course-selections.export', request()->query()) }}"
+            class="button button-secondary"
+            >
+            Detay Excel
+            </a>
+
+            <a
+            href="{{ route('admin.course-selections.export-summary', request()->query()) }}"
+            class="button button-secondary"
+            >
+                Öğrenci Özet Excel
+            </a>
+
         </div>
 
     </form>
