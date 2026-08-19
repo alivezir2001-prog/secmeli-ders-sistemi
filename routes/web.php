@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminAcademicYearController;
+use App\Http\Controllers\AdminCourseSelectionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,3 +46,7 @@ Route::get('/yonetim/egitim-yillari', [AdminAcademicYearController::class, 'inde
 Route::put('/yonetim/egitim-yillari/{academicYear}', [AdminAcademicYearController::class, 'update'])
     ->middleware('admin')
     ->name('admin.academic-years.update');
+
+Route::get('/yonetim/tercihler', [AdminCourseSelectionController::class, 'index'])
+    ->middleware('admin')
+    ->name('admin.course-selections.index');
