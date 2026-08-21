@@ -64,3 +64,17 @@ Route::get('/yonetim/tercihler/ozet-excel', [
 ])
     ->middleware('admin')
     ->name('admin.course-selections.export-summary');
+
+Route::get('/yonetim/tercihler/pdf', [
+    AdminCourseSelectionController::class,
+    'exportPdf',
+])
+    ->middleware('admin')
+    ->name('admin.course-selections.export-pdf');
+
+Route::get('/yonetim/tercihler/ozet-pdf', [
+    AdminCourseSelectionController::class,
+    'exportSummaryPdf',
+])
+    ->middleware('admin')
+    ->name('admin.course-selections.export-summary-pdf');

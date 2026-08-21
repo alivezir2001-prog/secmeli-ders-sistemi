@@ -491,6 +491,20 @@
                 Öğrenci Özet Excel
             </a>
 
+            <a
+            href="{{ route('admin.course-selections.export-pdf', request()->query()) }}"
+            class="button button-secondary"
+            >
+            PDF'e Aktar
+            </a>
+
+             <a
+            href="{{ route('admin.course-selections.export-summary-pdf', request()->query()) }}"
+            class="button button-secondary"
+            >
+            Özet PDF
+            </a>
+
         </div>
 
     </form>

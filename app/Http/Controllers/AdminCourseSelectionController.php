@@ -10,6 +10,7 @@ use App\Models\StudentCourseSelection;
 use App\Models\StudentYear;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminCourseSelectionController extends Controller
 {
@@ -47,6 +48,43 @@ class AdminCourseSelectionController extends Controller
             $data['academicYear']->name .
             '.xlsx'
         );
+    }
+
+    public function exportPdf(Request $request)
+    {
+    $data = $this->getSelectionData($request);
+
+    $pdf = Pdf::loadView(
+        'admin.course-selections.detail-pdf',
+        $data
+    );
+
+    $pdf->setPaper('a4', 'landscape');
+
+    return $pdf->download(
+        'secmeli-ders-tercihleri-' .
+        $data['academicYear']->name .
+        '.pdf'
+        );
+    }
+
+    public function exportSummaryPdf(Request $request)
+    {
+    $data = $this->getSelectionData($request);
+
+    $pdf = Pdf::loadView(
+        'admin.course-selections.summary-pdf',
+        $data
+    );
+
+    $pdf->setPaper('a4', 'landscape');
+
+    return $pdf->download(
+        'secmeli-ders-ogrenci-ozet-' .
+        $data['academicYear']->name .
+        '.pdf'
+    );
+
     }
 
     private function getSelectionData(Request $request): array
