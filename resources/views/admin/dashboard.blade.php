@@ -149,6 +149,15 @@
             </p>
         </a>
 
+        <a href="{{ route('admin.course-offerings.index') }}" class="card"
+        >
+            <div class="icon">📊</div>
+            <h3>Ders Kontenjanları</h3>
+            <p>
+                Derslerin öğrenci sayılarını ve okul kapasitesini yönetin.
+            </p>
+        </a>
+
     </section>
 
     <form method="POST" action="{{ route('logout') }}">

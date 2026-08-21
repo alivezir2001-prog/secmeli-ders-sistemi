@@ -32,6 +32,11 @@ class AcademicYear extends Model
         return $this->hasMany(StudentCourseHistory::class);
     }
 
+    public function courseOfferings(): HasMany
+    {
+    return $this->hasMany(CourseOffering::class);
+    }
+
     public function courseSelections(): HasMany
     {
         return $this->hasMany(StudentCourseSelection::class);

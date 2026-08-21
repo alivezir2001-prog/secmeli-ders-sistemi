@@ -40,4 +40,10 @@ class Course extends Model
     {
     return $this->hasMany(StudentCourseHistory::class);
     }
+
+    public function offerings(): HasMany
+    {
+    return $this->hasMany(CourseOffering::class);
+    }
+
 }

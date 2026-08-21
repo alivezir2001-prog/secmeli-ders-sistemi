@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminAcademicYearController;
 use App\Http\Controllers\AdminCourseSelectionController;
+use App\Http\Controllers\AdminCourseOfferingController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -78,3 +79,17 @@ Route::get('/yonetim/tercihler/ozet-pdf', [
 ])
     ->middleware('admin')
     ->name('admin.course-selections.export-summary-pdf');
+
+Route::get('/yonetim/ders-kontenjanlari', [
+    AdminCourseOfferingController::class,
+    'index',
+])
+    ->middleware('admin')
+    ->name('admin.course-offerings.index');
+
+Route::put('/yonetim/ders-kontenjanlari/{course}', [
+    AdminCourseOfferingController::class,
+    'update',
+])
+    ->middleware('admin')
+    ->name('admin.course-offerings.update');
