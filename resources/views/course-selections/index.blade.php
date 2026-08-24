@@ -13,22 +13,20 @@
 
         body {
             margin: 0;
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
-                Roboto, Arial, sans-serif;
+            font-family: Inter, Arial, sans-serif;
             background: #f3f6fa;
             color: #1f2937;
         }
 
         button,
-        input {
+        input,
+        select {
             font: inherit;
         }
 
         .page {
             min-height: 100vh;
         }
-
-        /* HEADER */
 
         .header {
             background: linear-gradient(135deg, #173b68, #245b91);
@@ -61,7 +59,6 @@
         .brand h1 {
             margin: 0;
             font-size: 22px;
-            font-weight: 700;
         }
 
         .brand p {
@@ -70,15 +67,13 @@
             font-size: 14px;
         }
 
-        /* STUDENT CARD */
-
         .student-card {
             max-width: 1180px;
             margin: -45px auto 24px;
             position: relative;
             background: white;
             border-radius: 18px;
-            box-shadow: 0 12px 35px rgba(15, 23, 42, .10);
+            box-shadow: 0 12px 35px rgba(15,23,42,.10);
             padding: 22px 24px;
             display: flex;
             justify-content: space-between;
@@ -125,29 +120,74 @@
             font-weight: 600;
         }
 
-        /* MAIN */
-
         .container {
             max-width: 1180px;
             margin: auto;
             padding: 0 20px 60px;
         }
 
-        /* PROGRESS */
+        .success,
+        .errors {
+            border-radius: 14px;
+            padding: 15px 16px;
+            margin-bottom: 22px;
+        }
+
+        .success {
+            background: #ecfdf3;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .errors {
+            background: #fff1f1;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .errors strong {
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .info-banner {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 5px 20px rgba(15,23,42,.06);
+        }
+
+        .info-banner strong {
+            color: #245b91;
+        }
+
+        .info-banner p {
+            margin: 7px 0 0;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
 
         .progress-card {
             background: white;
             border-radius: 18px;
             padding: 22px;
             margin-bottom: 28px;
-            box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
+            box-shadow: 0 5px 20px rgba(15,23,42,.06);
         }
 
         .progress-top {
             display: flex;
             justify-content: space-between;
+            gap: 20px;
             align-items: center;
-            gap: 15px;
             margin-bottom: 14px;
         }
 
@@ -156,10 +196,17 @@
             font-weight: 700;
         }
 
+        .progress-message {
+            margin-top: 7px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
         .hours {
-            font-size: 25px;
+            font-size: 26px;
             font-weight: 800;
             color: #245b91;
+            white-space: nowrap;
         }
 
         .hours.complete {
@@ -178,30 +225,33 @@
             width: 0;
             background: #245b91;
             border-radius: 20px;
-            transition: width .25s ease;
+            transition: width .2s ease;
         }
 
         .progress-fill.complete {
             background: #16834a;
         }
 
-        .progress-message {
-            margin-top: 12px;
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        /* CATEGORY */
-
-        .category {
-            margin-bottom: 30px;
+        .category-card {
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 5px 20px rgba(15,23,42,.06);
         }
 
         .category-header {
             display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .category-left {
+            display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 14px;
         }
 
         .category-number {
@@ -211,222 +261,99 @@
             background: #245b91;
             color: white;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-weight: 700;
+            align-items: center;
+            font-weight: 800;
         }
 
         .category-title {
             margin: 0;
-            font-size: 19px;
-        }
-
-        .course-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 15px;
-        }
-
-        /* COURSE CARD */
-
-        .course-card {
-            background: white;
-            border: 2px solid transparent;
-            border-radius: 16px;
-            padding: 18px;
-            box-shadow: 0 4px 15px rgba(15, 23, 42, .05);
-            transition: .2s ease;
-        }
-
-        .course-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(15, 23, 42, .08);
-        }
-
-        .course-card.selected {
-            border-color: #245b91;
-            background: #f7fbff;
-        }
-
-        .course-card.locked {
-            opacity: .62;
-            background: #f8fafc;
-        }
-
-        .course-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .course-name {
-            font-weight: 700;
-            font-size: 16px;
-            line-height: 1.35;
-        }
-
-        .selection-number {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #245b91;
-            color: white;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-weight: 800;
-        }
-
-        .course-card.selected .selection-number {
-            display: flex;
-        }
-
-        .course-meta {
-            margin-top: 8px;
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        .lock-message {
-            margin-top: 13px;
-            padding: 10px 12px;
-            background: #fff3f3;
-            color: #a12b2b;
-            border-radius: 9px;
-            font-size: 13px;
-        }
-
-        /* HOURS */
-
-        .hours-label {
-            margin-top: 16px;
-            margin-bottom: 9px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #4b5563;
-        }
-
-        .hours-options {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .hour-option {
-            position: relative;
-        }
-
-        .hour-option input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .hour-option label {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 75px;
-            padding: 9px 13px;
-            border: 1px solid #d7dee7;
-            border-radius: 9px;
-            cursor: pointer;
-            background: white;
-            color: #374151;
-            font-size: 13px;
-            font-weight: 600;
-            transition: .15s;
-        }
-
-        .hour-option label:hover {
-            border-color: #245b91;
-        }
-
-        .hour-option input:checked + label {
-            background: #245b91;
-            border-color: #245b91;
-            color: white;
-        }
-
-        /* SELECTED */
-
-        .selected-card {
-            background: #fff;
-            border-radius: 18px;
-            padding: 22px;
-            margin-top: 35px;
-            box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
-        }
-
-        .selected-title {
-            margin: 0 0 15px;
             font-size: 18px;
         }
 
-        .selected-list {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
+        .category-hint {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 3px;
         }
 
-        .selected-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #f7f9fc;
-            padding: 11px 13px;
-            border-radius: 10px;
-        }
-
-        .selected-order {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: #245b91;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .selected-course {
-            flex: 1;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .selected-hours {
+        .selected-count {
+            padding: 6px 10px;
+            background: #eef5fb;
             color: #245b91;
-            font-size: 13px;
-            font-weight: 700;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
         }
 
-        /* ERRORS */
-
-        .errors {
-            background: #fff1f1;
-            border: 1px solid #fecaca;
-            color: #991b1b;
+        .preference-row {
+            border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 16px;
-            margin-bottom: 22px;
+            margin-top: 10px;
+            background: #f8fafc;
+            transition: .2s;
         }
 
-        .errors strong {
+        .preference-row.primary {
+            border-color: #c4d7ea;
+            background: #f7fbff;
+        }
+
+        .preference-row.invalid {
+            border-color: #fca5a5;
+            background: #fff7f7;
+        }
+
+        .preference-grid {
+            display: grid;
+            grid-template-columns: 75px 1.4fr 1.2fr 190px;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .preference-number {
+            font-size: 14px;
+            font-weight: 800;
+            color: #245b91;
+            padding-bottom: 11px;
+        }
+
+        .field label {
             display: block;
-            margin-bottom: 7px;
+            margin-bottom: 5px;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 800;
         }
 
-        .errors ul {
-            margin: 0;
-            padding-left: 20px;
+        .field select {
+            width: 100%;
+            min-height: 42px;
+            padding: 9px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            background: white;
+            color: #1f2937;
         }
 
-        /* SUBMIT */
+        .field select:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .hour-required-note {
+            margin-top: 6px;
+            color: #245b91;
+            font-size: 11px;
+        }
+
+        .optional-note {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 11px;
+        }
 
         .submit-area {
             margin-top: 28px;
@@ -437,12 +364,12 @@
             justify-content: space-between;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 5px 20px rgba(15, 23, 42, .06);
+            box-shadow: 0 5px 20px rgba(15,23,42,.06);
         }
 
         .submit-info {
+            color: #64748b;
             font-size: 14px;
-            color: #6b7280;
         }
 
         .submit-button {
@@ -454,7 +381,6 @@
             font-weight: 700;
             cursor: pointer;
             min-width: 180px;
-            transition: .2s;
         }
 
         .submit-button:hover {
@@ -467,20 +393,6 @@
             cursor: not-allowed;
         }
 
-        /* SUCCESS */
-
-        .success {
-            background: #ecfdf3;
-            border: 1px solid #bbf7d0;
-            color: #166534;
-            border-radius: 14px;
-            padding: 14px 16px;
-            margin-bottom: 22px;
-            font-weight: 600;
-        }
-
-        /* FOOTER */
-
         .footer {
             text-align: center;
             color: #94a3b8;
@@ -488,68 +400,41 @@
             padding: 30px 20px;
         }
 
-        @media (max-width: 800px) {
-            .course-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 1000px) {
+            .preference-grid {
+                grid-template-columns: 60px 1fr 1fr;
             }
 
-            .student-card {
-                align-items: flex-start;
-                flex-direction: column;
+            .hour-cell {
+                grid-column: 2 / 4;
             }
+        }
 
-            .submit-area {
+        @media (max-width: 700px) {
+            .student-card,
+            .progress-top,
+            .submit-area,
+            .category-header {
                 flex-direction: column;
                 align-items: stretch;
             }
 
-            .submit-button {
-                width: 100%;
+            .preference-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hour-cell {
+                grid-column: auto;
+            }
+
+            .preference-number {
+                padding-bottom: 0;
+            }
+
+            .hours {
+                align-self: flex-start;
             }
         }
-
-        @media (max-width: 500px) {
-            .header {
-                padding: 22px 15px 60px;
-            }
-
-            .container {
-                padding: 0 12px 40px;
-            }
-
-            .student-card {
-                margin-left: 12px;
-                margin-right: 12px;
-                padding: 18px;
-            }
-
-            .brand h1 {
-                font-size: 18px;
-            }
-
-            .course-card,
-            .progress-card,
-            .selected-card,
-            .submit-area {
-                border-radius: 14px;
-            }
-        }
-
-        .remove-selection-button {
-            margin-top: 12px;
-            border: 1px solid #d1d5db;
-            background: white;
-            color: #64748b;
-            border-radius: 8px;
-            padding: 7px 10px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-            .remove-selection-button:hover {
-                background: #f1f5f9;
-            }
     </style>
 </head>
 
@@ -557,7 +442,6 @@
 
 <div class="page">
 
-    {{-- HEADER --}}
     <header class="header">
         <div class="header-inner">
 
@@ -573,8 +457,6 @@
         </div>
     </header>
 
-
-    {{-- STUDENT --}}
     <div class="student-card">
 
         <div class="student-info">
@@ -591,10 +473,13 @@
 
                 <p>
                     {{ $student->student_number ?? '' }}
+
                     @if($student->student_number)
                         •
                     @endif
-                    {{ $student->studentYears()->where('academic_year_id', $academicYear->id)->first()?->grade }}. Sınıf
+
+                    {{ $student->studentYears()->where('academic_year_id', $academicYear->id)->first()?->grade }}
+                    . Sınıf
                 </p>
             </div>
 
@@ -606,21 +491,16 @@
 
     </div>
 
-
     <main class="container">
 
-        {{-- SUCCESS --}}
         @if(session('success'))
             <div class="success">
                 ✓ {{ session('success') }}
             </div>
         @endif
 
-
-        {{-- ERRORS --}}
         @if($errors->any())
             <div class="errors">
-
                 <strong>⚠ Tercihleriniz kaydedilemedi.</strong>
 
                 <ul>
@@ -628,51 +508,177 @@
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
-
             </div>
         @endif
 
-
-        {{-- GRADE --}}
         @php
             $studentYear = $student->studentYears()
                 ->where('academic_year_id', $academicYear->id)
+                ->where('active', true)
                 ->first();
 
-            $grade = $studentYear?->grade ?? 5;
+            $grade = (int) ($studentYear?->grade ?? 5);
 
-            $requiredHours = match ((int) $grade) {
-                5, 6, 7, 8 => 5,
-                default => 5,
-            };
+            $requiredHours = $grade === 8 ? 6 : 5;
 
-            $currentSelections = $selections
-                ->sortBy('preference_order')
-                ->values();
+            /*
+             * Dersleri kategorilere ayır.
+             */
+            $groupedCourses = $courses->groupBy(
+                fn ($course) => $course->course_category_id
+            );
 
-            $currentHours = $currentSelections->sum(
-    fn ($selection) => $selection->gradeOption->weekly_hours
-);
+            /*
+             * Kategori isimleri.
+             */
+            $categoryNames = $courses
+                ->mapWithKeys(function ($course) {
+                    return [
+                        $course->course_category_id =>
+                            $course->category->name,
+                    ];
+                })
+                ->unique();
+
+            /*
+             * Mevcut tercihleri kategori + sıra
+             * şeklinde hazırla.
+             */
+            $existingSelections = [];
+
+            foreach ($selections as $selection) {
+                if (! $selection->course) {
+                    continue;
+                }
+
+                $categoryId =
+                    (int) $selection->course->course_category_id;
+
+                $order =
+                    (int) $selection->preference_order;
+
+                if ($order < 1 || $order > 3) {
+                    continue;
+                }
+
+                $existingSelections[$categoryId][$order] =
+                    $selection;
+            }
+
+            /*
+             * JavaScript'e gönderilecek ders kataloğu.
+             *
+             * Burada karmaşık @json(map(...)) kullanmıyoruz.
+             */
+            $courseCatalog = $courses
+                ->map(function ($course) {
+                    return [
+                        'id' => (int) $course->id,
+                        'name' => $course->name,
+                        'categoryId' => (int) $course->course_category_id,
+                        'isModular' => (bool) $course->is_modular,
+
+                        'moduleGroups' => $course->moduleGroups
+                            ->where('active', true)
+                            ->map(function ($group) {
+                                return [
+                                    'id' => (int) $group->id,
+                                    'name' => $group->name,
+                                ];
+                            })
+                            ->values()
+                            ->all(),
+
+                        'gradeOptions' => $course->gradeOptions
+                            ->where('active', true)
+                            ->map(function ($option) {
+                                return [
+                                    'id' => (int) $option->id,
+                                    'grade' => (int) $option->grade,
+                                    'weeklyHours' => (int) $option->weekly_hours,
+                                ];
+                            })
+                            ->values()
+                            ->all(),
+                    ];
+                })
+                ->values()
+                ->all();
+
+            /*
+             * Mevcut seçimleri sadeleştir.
+             */
+            $existingSelectionsJson = $selections
+                ->map(function ($selection) {
+                    return [
+                        'categoryId' =>
+                            (int) $selection->course->course_category_id,
+
+                        'preferenceOrder' =>
+                            (int) $selection->preference_order,
+
+                        'courseId' =>
+                            (int) $selection->course_id,
+
+                        'moduleGroupId' =>
+                            $selection->course_module_group_id
+                                ? (int) $selection->course_module_group_id
+                                : null,
+
+                        'gradeOptionId' =>
+                            $selection->course_grade_option_id
+                                ? (int) $selection->course_grade_option_id
+                                : null,
+
+                        'weeklyHours' =>
+                            $selection->weekly_hours !== null
+                                ? (int) $selection->weekly_hours
+                                : null,
+                    ];
+                })
+                ->values()
+                ->all();
         @endphp
 
+        <div class="info-banner">
+            <strong>Tercih sistemi nasıl çalışır?</strong>
 
-        {{-- PROGRESS --}}
+            <p>
+                Her ders grubunda en fazla üç alternatif tercih
+                yapabilirsiniz.
+                <strong>1. tercih</strong> için haftalık ders saati
+                seçilir.
+                2. ve 3. tercihler alternatif olarak tutulur;
+                bu tercihler için ayrıca saat seçilmez.
+                Okul, grup oluşturma aşamasında ihtiyaç olması halinde
+                alternatif tercihlerinizi kullanabilir.
+            </p>
+        </div>
+
         <section class="progress-card">
 
             <div class="progress-top">
 
                 <div>
+
                     <div class="progress-title">
-                        Ders Tercih Durumu
+                        1. Tercihlerinizin Ders Saati
                     </div>
 
-                    <div class="progress-message" id="progressMessage">
-                        Tercihlerinizi tamamlayınız.
+                    <div
+                        class="progress-message"
+                        id="progressMessage"
+                    >
+                        Her ders grubunda 1. tercih ve saat seçmelisiniz.
                     </div>
+
                 </div>
 
-                <div class="hours" id="hoursCounter">
-                    {{ $currentHours }} / {{ $requiredHours }} saat
+                <div
+                    class="hours"
+                    id="hoursCounter"
+                >
+                    0 / {{ $requiredHours }} saat
                 </div>
 
             </div>
@@ -681,14 +687,11 @@
                 <div
                     class="progress-fill"
                     id="progressFill"
-                    style="width: {{ min(100, ($currentHours / $requiredHours) * 100) }}%"
                 ></div>
             </div>
 
         </section>
 
-
-        {{-- FORM --}}
         <form
             method="POST"
             action="{{ route('course-selections.store') }}"
@@ -697,255 +700,188 @@
 
             @csrf
 
-            {{-- DYNAMIC HIDDEN INPUTS --}}
             <div id="selectionInputs"></div>
 
-
-            {{-- COURSES --}}
-            @php
-                $groupedCourses = $courses->groupBy(
-                    fn($course) => $course->category->name
-                );
-
-                $categoryIndex = 0;
-            @endphp
-
-
-            @foreach($groupedCourses as $categoryName => $categoryCourses)
+            @foreach($groupedCourses as $categoryId => $categoryCourses)
 
                 @php
-                    $categoryIndex++;
+                    $categoryId = (int) $categoryId;
+                    $existing = $existingSelections[$categoryId] ?? [];
                 @endphp
 
-                <section class="category">
+                <section
+                    class="category-card"
+                    data-category-id="{{ $categoryId }}"
+                >
 
                     <div class="category-header">
 
-                        <div class="category-number">
-                            {{ $categoryIndex }}
+                        <div class="category-left">
+
+                            <div class="category-number">
+                                {{ $loop->iteration }}
+                            </div>
+
+                            <div>
+                                <h2 class="category-title">
+                                    {{ $categoryNames[$categoryId] }}
+                                </h2>
+
+                                <div class="category-hint">
+                                    Bu gruptaki dersleri tercih sıranıza göre seçebilirsiniz.
+                                </div>
+                            </div>
+
                         </div>
 
-                        <h2 class="category-title">
-                            {{ $categoryName }}
-                        </h2>
+                        <div
+                            class="selected-count"
+                            data-category-count="{{ $categoryId }}"
+                        >
+                            0 tercih
+                        </div>
 
                     </div>
 
+                    @for($order = 1; $order <= 3; $order++)
 
-                    <div class="course-grid">
+                        @php
+                            $existingSelection =
+                                $existing[$order] ?? null;
+                        @endphp
 
-                        @foreach($categoryCourses as $course)
+                        <div
+                            class="preference-row {{ $order === 1 ? 'primary' : '' }}"
+                            data-category-id="{{ $categoryId }}"
+                            data-preference-order="{{ $order }}"
+                        >
 
-                            @php
-                                $remaining = $service->remainingAttempts(
-                                    $student,
-                                    $course
-                                );
+                            <div class="preference-grid">
 
-                                $locked = $remaining <= 0;
-
-                                $selected = $currentSelections
-                                    ->firstWhere('course_id', $course->id);
-
-                                $options = $course->gradeOptions
-                                    ->where('grade', $grade)
-                                    ->sortBy('weekly_hours')
-                                    ->values();
-                            @endphp
-
-
-                            <article
-                            class="course-card {{ $selected ? 'selected' : '' }} {{ $locked ? 'locked' : '' }}"
-                            data-course-id="{{ $course->id }}"
-                            data-course-name="{{ $course->name }}"
-                            data-category-id="{{ $course->course_category_id }}"
-                            data-locked="{{ $locked ? '1' : '0' }}"
-                            >
-
-                                <div class="course-head">
-
-                                    <div class="course-name">
-                                        {{ $course->name }}
-                                    </div>
-
-                                    <div class="selection-number">
-                                        @if($selected)
-                                            {{ $currentSelections->search($selected) + 1 }}
-                                        @endif
-                                    </div>
-
+                                <div class="preference-number">
+                                    {{ $order }}. Tercih
                                 </div>
 
+                                <div class="field">
+                                    <label>DERS</label>
 
-                                <div class="course-meta">
+                                    <select
+                                        class="course-select"
+                                        data-category-id="{{ $categoryId }}"
+                                        data-preference-order="{{ $order }}"
+                                    >
+                                        <option value="">
+                                            Ders seçiniz
+                                        </option>
 
-                                    @if($locked)
+                                        @foreach($categoryCourses as $course)
 
-                                        Maksimum alma hakkınız doldu.
+                                            @php
+                                                $remaining =
+                                                    $service->remainingAttempts(
+                                                        $student,
+                                                        $course
+                                                    );
 
+                                                $selectedCourse =
+                                                    $existingSelection
+                                                    &&
+                                                    (int) $existingSelection->course_id
+                                                    === (int) $course->id;
+                                            @endphp
+
+                                            <option
+                                                value="{{ $course->id }}"
+                                                {{ $selectedCourse ? 'selected' : '' }}
+                                                {{ $remaining <= 0 ? 'disabled' : '' }}
+                                            >
+                                                {{ $course->name }}
+
+                                                @if($remaining <= 0)
+                                                    — alma hakkı dolu
+                                                @endif
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+                                </div>
+
+                                <div class="field">
+                                    <label>PROGRAM / ALAN</label>
+
+                                    <select
+                                        class="module-group-select"
+                                        data-category-id="{{ $categoryId }}"
+                                        data-preference-order="{{ $order }}"
+                                        disabled
+                                    >
+                                        <option value="">
+                                            Önce ders seçiniz
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="field hour-cell">
+                                    <label>HAFTALIK DERS SAATİ</label>
+
+                                    <select
+                                        class="grade-option-select"
+                                        data-category-id="{{ $categoryId }}"
+                                        data-preference-order="{{ $order }}"
+                                        disabled
+                                    >
+                                        <option value="">
+                                            {{ $order === 1 ? 'Saat seçiniz' : 'Sadece 1. tercih için' }}
+                                        </option>
+                                    </select>
+
+                                    @if($order === 1)
+                                        <div class="hour-required-note">
+                                            1. tercih için zorunludur.
+                                        </div>
                                     @else
-
-                                        Kalan alma hakkı:
-                                        <strong>{{ $remaining }}</strong>
-
+                                        <div class="optional-note">
+                                            Alternatif tercihtir; saat burada seçilmez.
+                                        </div>
                                     @endif
 
                                 </div>
 
+                            </div>
 
-                                @if($locked)
+                        </div>
 
-                                    <div class="lock-message">
-                                        🔒 Bu dersi artık seçemezsiniz.
-                                    </div>
-
-                                @else
-
-                                @if(!$selectionOpen)
-
-                                <div class="lock-message">
-                                🔒 Tercih dönemi kapalı olduğu için bu ders seçilemez.
-                                </div>
-
-                                @elseif($options->count())
-
-                                        <div class="hours-label">
-                                            Haftalık ders saati
-                                        </div>
-
-
-                                        <div class="hours-options">
-
-                                            @foreach($options as $option)
-
-                                                @php
-                                                    $inputId =
-                                                        'course_' .
-                                                        $course->id .
-                                                        '_option_' .
-                                                        $option->id;
-                                                @endphp
-
-                                                <div class="hour-option">
-
-                                                    <input
-                                                        type="radio"
-                                                        id="{{ $inputId }}"
-                                                        name="course_option_{{ $course->id }}"
-                                                        value="{{ $option->id }}"
-                                                        data-course-id="{{ $course->id }}"
-                                                        data-course-name="{{ $course->name }}"
-                                                        data-hours="{{ $option->weekly_hours }}"
-                                                        class="course-option"
-                                                        {{ $selected && $selected->course_grade_option_id == $option->id ? 'checked' : '' }}
-                                                    >
-
-                                                    <label for="{{ $inputId }}">
-                                                        {{ $option->weekly_hours }} saat
-                                                    </label>
-
-                                                </div>
-
-                                            @endforeach
-
-                                        </div>
-
-                                    @else
-
-                                        <div class="lock-message">
-                                            Bu sınıf için tanımlı ders saati bulunamadı.
-                                        </div>
-
-                                    @endif
-
-                                @endif
-
-                            </article>
-
-                        @endforeach
-
-                    </div>
+                    @endfor
 
                 </section>
 
             @endforeach
 
-
-            {{-- SELECTED --}}
-            <section class="selected-card">
-
-                <h2 class="selected-title">
-                    Tercih Sıralamanız
-                </h2>
-
-                <div
-                    class="selected-list"
-                    id="selectedList"
-                ></div>
-
-                <div
-                    id="emptySelection"
-                    style="color:#94a3b8;font-size:14px;"
-                >
-                    Henüz ders seçmediniz.
-                </div>
-
-            </section>
-
-
-            {{-- SUBMIT --}}
             <div class="submit-area">
 
-            @if(!$selectionOpen)
+                <div
+                    class="submit-info"
+                    id="submitInfo"
+                >
+                    Her ders grubunda 1. tercih ve saat seçimi yapmalısınız.
+                </div>
 
-            <div
-                class="closed-period-message"
-                style="
-                width:100%;
-                padding:16px 20px;
-                border-radius:12px;
-                background:#fef2f2;
-                border:1px solid #fecaca;
-                color:#991b1b;
-                font-weight:700;
-                text-align:center;
-            "
-        >
-            🔒 Tercih dönemi şu anda kapalıdır.
-            <div
-                style="
-                    margin-top:5px;
-                    font-size:13px;
-                    font-weight:500;
-                "
-            >
-                Tercihler şu anda değiştirilemez.
+                <button
+                    type="submit"
+                    class="submit-button"
+                    id="submitButton"
+                    disabled
+                    {{ !$selectionOpen ? 'disabled' : '' }}
+                >
+                    {{ $selectionOpen ? 'Tercihleri Gönder' : 'Tercih Dönemi Kapalı' }}
+                </button>
+
             </div>
-        </div>
-
-    @else
-
-        <div class="submit-info" id="submitInfo">
-            Toplam {{ $requiredHours }} saatlik ders tercihi yapmalısınız.
-        </div>
-
-        <button
-            type="submit"
-            class="submit-button"
-            id="submitButton"
-            disabled
-        >
-            Tercihleri Gönder
-        </button>
-
-    @endif
-
-</div>
 
         </form>
 
     </main>
-
 
     <footer class="footer">
         Seçmeli Ders Tercih Sistemi
@@ -953,503 +889,959 @@
 
 </div>
 
-
 <script>
-
     const requiredHours = {{ $requiredHours }};
     const selectionOpen = @json($selectionOpen);
 
-    /*
-     * Seçimler:
-     *
-     * [
-     *   {
-     *      courseId: 3,
-     *      courseName: "...",
-     *      optionId: 6,
-     *      hours: 2
-     *   }
-     * ]
-     */
+    const courseCatalog = @json($courseCatalog);
+    const existingSelections = @json($existingSelectionsJson);
 
-    let selections = [];
-
-@foreach ($currentSelections as $selection)
-    selections.push({
-        courseId: {{ $selection->course_id }},
-        courseName: @json($selection->course->name),
-        optionId: {{ $selection->course_grade_option_id }},
-        hours: {{ $selection->gradeOption->weekly_hours }}
-    });
-@endforeach
-
-
-    function totalHours()
+    function escapeHtml(text)
     {
-        return selections.reduce(
-            (total, selection) => total + Number(selection.hours),
-            0
+        const div = document.createElement('div');
+        div.textContent = text ?? '';
+        return div.innerHTML;
+    }
+
+    function findCourse(courseId)
+    {
+        return courseCatalog.find(
+            course => Number(course.id) === Number(courseId)
+        ) || null;
+    }
+
+    function getRow(categoryId, order)
+    {
+        return document.querySelector(
+            `.preference-row[data-category-id="${categoryId}"][data-preference-order="${order}"]`
         );
     }
 
-
-    function updateInterface()
+    function getCourseSelect(categoryId, order)
     {
-        const total = totalHours();
+        return getRow(categoryId, order)
+            ?.querySelector('.course-select');
+    }
 
-        const counter = document.getElementById('hoursCounter');
-        const fill = document.getElementById('progressFill');
-        const message = document.getElementById('progressMessage');
-        const submitButton = document.getElementById('submitButton');
-        const submitInfo = document.getElementById('submitInfo');
+    function getGroupSelect(categoryId, order)
+    {
+        return getRow(categoryId, order)
+            ?.querySelector('.module-group-select');
+    }
 
-        counter.textContent =
-            total + ' / ' + requiredHours + ' saat';
+    function getHourSelect(categoryId, order)
+    {
+        return getRow(categoryId, order)
+            ?.querySelector('.grade-option-select');
+    }
 
+    /*
+     * Program / alan listesini doldur.
+     */
+    function fillModuleGroups(
+        categoryId,
+        order,
+        selectedGroupId = null
+    ) {
+        const courseSelect =
+            getCourseSelect(categoryId, order);
 
-        const percentage = Math.min(
-            100,
-            (total / requiredHours) * 100
-        );
+        const groupSelect =
+            getGroupSelect(categoryId, order);
 
-        fill.style.width = percentage + '%';
-
-
-        if (total === requiredHours) {
-
-            counter.classList.add('complete');
-            fill.classList.add('complete');
-
-            message.textContent =
-                '✓ Tercihiniz tamamlandı. Gönderebilirsiniz.';
-
-            submitButton.disabled = false;
-
-            submitInfo.textContent =
-                '✓ ' + requiredHours + ' saatlik tercihiniz hazır.';
-
-        } else {
-
-            counter.classList.remove('complete');
-            fill.classList.remove('complete');
-
-            submitButton.disabled = true;
-
-            if (total < requiredHours) {
-
-                message.textContent =
-                    'Tercihinizi tamamlamak için ' +
-                    (requiredHours - total) +
-                    ' saat daha seçmelisiniz.';
-
-                submitInfo.textContent =
-                    'Toplam ' +
-                    requiredHours +
-                    ' saatlik ders tercihi yapmalısınız.';
-
-            } else {
-
-                message.textContent =
-                    '⚠ Toplam ders saati sınırı aşıldı.';
-
-                submitInfo.textContent =
-                    'Toplam ders saati ' +
-                    requiredHours +
-                    ' saati geçemez.';
-            }
+        if (!courseSelect || !groupSelect) {
+            return;
         }
 
+        const course =
+            findCourse(courseSelect.value);
 
-        updateCourseCards();
-        updateSelectedList();
-        updateHiddenInputs();
-    }
+        groupSelect.innerHTML = '';
 
+        if (!course) {
+            groupSelect.innerHTML = `
+                <option value="">
+                    Önce ders seçiniz
+                </option>
+            `;
 
-    function updateCourseCards()
-    {
-        /*
-         * Hangi kategorilerde zaten ders seçilmiş?
-         */
-        const selectedCategories = new Set();
-
-        selections.forEach(selection => {
-            const selectedCard = document.querySelector(
-                `.course-card[data-course-id="${selection.courseId}"]`
-            );
-
-            if (selectedCard) {
-                selectedCategories.add(
-                    Number(selectedCard.dataset.categoryId)
-                );
-            }
-        });
-
-        document
-            .querySelectorAll('.course-card')
-            .forEach(card => {
-
-            if (!selectionOpen) {
-
-                const removeButton =
-                    card.querySelector('.remove-selection-button');
-
-                if (removeButton) {
-                    removeButton.remove();
-                }
-}
-
-                const courseId =
-                    Number(card.dataset.courseId);
-
-                const categoryId =
-                    Number(card.dataset.categoryId);
-
-                const selectionIndex =
-                    selections.findIndex(
-                        selection =>
-                            selection.courseId === courseId
-                    );
-
-                const isSelected =
-                    selectionIndex >= 0;
-
-                /*
-                 * Seçili / seçili değil görünümünü yönet.
-                 * Seçim kaldırıldığında selected class ve
-                 * Seçimi kaldır butonu burada temizlenir.
-                 */
-                if (isSelected) {
-
-                    card.classList.add('selected');
-
-                    const number =
-                        card.querySelector('.selection-number');
-
-                    if (number) {
-                        number.textContent =
-                            selectionIndex + 1;
-                    }
-
-                    /*
-                     * Seçilen dersin doğru saat seçeneğini işaretle.
-                     */
-                    card.querySelectorAll('.course-option')
-                        .forEach(input => {
-                            input.checked =
-                                Number(input.value) ===
-                                Number(selections[selectionIndex].optionId);
-                        });
-
-                    let removeButton =
-                        card.querySelector('.remove-selection-button');
-
-                    if (selectionOpen && !removeButton) {
-
-                        removeButton =
-                            document.createElement('button');
-
-                        removeButton.type = 'button';
-                        removeButton.className =
-                            'remove-selection-button';
-                        removeButton.textContent =
-                            'Seçimi kaldır';
-
-                        removeButton.addEventListener(
-                            'click',
-                            function (event) {
-
-                                event.preventDefault();
-                                event.stopPropagation();
-
-                                selections =
-                                    selections.filter(
-                                        selection =>
-                                            selection.courseId !== courseId
-                                    );
-
-                                updateInterface();
-                            }
-                        );
-
-                        card.appendChild(removeButton);
-                    }
-
-                } else {
-
-                    /*
-                     * Ders artık seçili değilse kartın bütün
-                     * görsel durumunu sıfırla.
-                     */
-                    card.classList.remove('selected');
-                    card.classList.remove('locked');
-
-                    const number =
-                        card.querySelector('.selection-number');
-
-                    if (number) {
-                        number.textContent = '';
-                    }
-
-                    /*
-                     * Seçili radio butonunu da temizle.
-                     */
-                    card.querySelectorAll('.course-option')
-                        .forEach(input => {
-                            input.checked = false;
-                        });
-
-                    /*
-                     * Seçimi kaldır butonunu kaldır.
-                     */
-                    const removeButton =
-                        card.querySelector('.remove-selection-button');
-
-                    if (removeButton) {
-                        removeButton.remove();
-                    }
-                }
-
-                /*
-                 * Aynı kategoriden başka bir ders seçilmişse,
-                 * seçili ders dışındaki kartları kilitle.
-                 */
-                const categoryTaken =
-                    selectedCategories.has(categoryId);
-
-                const shouldLock =
-                    categoryTaken && !isSelected;
-
-                /*
-                 * Öğrencinin maksimum alma hakkı dolmuş dersler
-                 * sunucu tarafından locked olarak gelir.
-                 */
-                const serverLocked =
-                    card.dataset.locked === '1';
-
-                const inputs =
-                    card.querySelectorAll('.course-option');
-
-                if (shouldLock && !serverLocked) {
-
-                    card.classList.add('locked');
-
-                    inputs.forEach(input => {
-                        input.disabled = true;
-                    });
-
-                    let message =
-                        card.querySelector('.category-lock-message');
-
-                    if (!message) {
-                        message =
-                            document.createElement('div');
-
-                        message.className =
-                            'lock-message category-lock-message';
-
-                        card.appendChild(message);
-                    }
-
-                    message.textContent =
-                        '🔒 Bu gruptan başka bir ders seçtiğiniz için bu ders seçilemez.';
-
-                } else {
-
-                    if (!serverLocked) {
-                        card.classList.remove('locked');
-                    }
-
-                    inputs.forEach(input => {
-                        input.disabled = serverLocked;
-                    });
-
-                    const message =
-                        card.querySelector('.category-lock-message');
-
-                    if (message) {
-                        message.remove();
-                    }
-                }
-            });
-    }
-
-
-    function updateSelectedList()
-    {
-        const list =
-            document.getElementById('selectedList');
-
-        const empty =
-            document.getElementById('emptySelection');
-
-        list.innerHTML = '';
-
-        if (!selections.length) {
-
-            empty.style.display = 'block';
+            groupSelect.disabled = true;
 
             return;
         }
 
-        empty.style.display = 'none';
-
-
-        selections.forEach((selection, index) => {
-
-            const item =
-                document.createElement('div');
-
-            item.className =
-                'selected-item';
-
-            item.innerHTML = `
-                <div class="selected-order">
-                    ${index + 1}
-                </div>
-
-                <div class="selected-course">
-                    ${escapeHtml(selection.courseName)}
-                </div>
-
-                <div class="selected-hours">
-                    ${selection.hours} saat
-                </div>
+        /*
+         * Modüler değilse program gerekmez.
+         */
+        if (!course.isModular) {
+            groupSelect.innerHTML = `
+                <option value="">
+                    Program gerekmiyor
+                </option>
             `;
 
-            list.appendChild(item);
+            groupSelect.disabled = true;
 
+            return;
+        }
+
+        const groups =
+            Array.isArray(course.moduleGroups)
+                ? course.moduleGroups
+                : [];
+
+        if (!groups.length) {
+            groupSelect.innerHTML = `
+                <option value="">
+                    Aktif program bulunamadı
+                </option>
+            `;
+
+            groupSelect.disabled = true;
+
+            return;
+        }
+
+        /*
+         * Tek program varsa otomatik seç.
+         */
+        if (groups.length === 1) {
+            groupSelect.innerHTML = `
+                <option value="${groups[0].id}">
+                    ${escapeHtml(groups[0].name)}
+                </option>
+            `;
+
+            groupSelect.value =
+                String(groups[0].id);
+
+            groupSelect.disabled = true;
+
+            return;
+        }
+
+        /*
+         * Birden fazla program varsa öğrenci seçsin.
+         */
+        groupSelect.disabled = false;
+
+        groupSelect.innerHTML = `
+            <option value="">
+                Program / alan seçiniz
+            </option>
+        `;
+
+        groups.forEach(group => {
+            const option =
+                document.createElement('option');
+
+            option.value =
+                String(group.id);
+
+            option.textContent =
+                group.name;
+
+            if (
+                selectedGroupId !== null &&
+                Number(selectedGroupId) === Number(group.id)
+            ) {
+                option.selected = true;
+            }
+
+            groupSelect.appendChild(option);
         });
     }
 
+    /*
+     * Sadece 1. tercih için saatleri doldur.
+     */
+    function fillHours(
+        categoryId,
+        order,
+        selectedOptionId = null
+    ) {
+        const courseSelect =
+            getCourseSelect(categoryId, order);
 
-    function updateHiddenInputs()
+        const hourSelect =
+            getHourSelect(categoryId, order);
+
+        if (!courseSelect || !hourSelect) {
+            return;
+        }
+
+        hourSelect.innerHTML = '';
+
+        /*
+         * 2. ve 3. tercihte saat yok.
+         */
+        if (Number(order) !== 1) {
+            hourSelect.innerHTML = `
+                <option value="">
+                    Sadece 1. tercih için
+                </option>
+            `;
+
+            hourSelect.disabled = true;
+
+            return;
+        }
+
+        const course =
+            findCourse(courseSelect.value);
+
+        if (!course) {
+            hourSelect.innerHTML = `
+                <option value="">
+                    Saat seçiniz
+                </option>
+            `;
+
+            hourSelect.disabled = true;
+
+            return;
+        }
+
+        const options =
+            Array.isArray(course.gradeOptions)
+                ? course.gradeOptions
+                : [];
+
+        if (!options.length) {
+            hourSelect.innerHTML = `
+                <option value="">
+                    Uygun saat seçeneği yok
+                </option>
+            `;
+
+            hourSelect.disabled = true;
+
+            return;
+        }
+
+        hourSelect.disabled = false;
+
+        hourSelect.innerHTML = `
+            <option value="">
+                Saat seçiniz
+            </option>
+        `;
+
+        options.forEach(option => {
+            const item =
+                document.createElement('option');
+
+            item.value =
+                String(option.id);
+
+            item.textContent =
+                `${option.weeklyHours} saat`;
+
+            if (
+                selectedOptionId !== null &&
+                Number(selectedOptionId) === Number(option.id)
+            ) {
+                item.selected = true;
+            }
+
+            hourSelect.appendChild(item);
+        });
+    }
+
+    /*
+     * Aynı kategori içindeki aynı ders
+     * 2 kez seçilemez.
+     */
+    function refreshDuplicateOptions(categoryId)
+    {
+        const rows =
+            document.querySelectorAll(
+                `.preference-row[data-category-id="${categoryId}"]`
+            );
+
+        const selectedCourseIds = [];
+
+        rows.forEach(row => {
+            const select =
+                row.querySelector('.course-select');
+
+            if (select && select.value) {
+                selectedCourseIds.push(
+                    Number(select.value)
+                );
+            }
+        });
+
+        rows.forEach(row => {
+            const select =
+                row.querySelector('.course-select');
+
+            if (!select) {
+                return;
+            }
+
+            const currentId =
+                Number(select.value || 0);
+
+            Array.from(select.options).forEach(option => {
+                if (!option.value) {
+                    return;
+                }
+
+                const optionId =
+                    Number(option.value);
+
+                option.disabled =
+                    optionId !== currentId &&
+                    selectedCourseIds.includes(optionId);
+            });
+        });
+    }
+
+    /*
+     * 2. tercih ancak 1. tercih seçildikten sonra,
+     * 3. tercih ancak 2. tercih seçildikten sonra aktifleşir.
+     */
+    function refreshPreferenceAvailability(categoryId)
+    {
+        const firstSelect =
+            getCourseSelect(categoryId, 1);
+
+        const secondSelect =
+            getCourseSelect(categoryId, 2);
+
+        const thirdSelect =
+            getCourseSelect(categoryId, 3);
+
+        const firstHasCourse =
+            !!firstSelect?.value;
+
+        const secondHasCourse =
+            !!secondSelect?.value;
+
+        if (secondSelect) {
+            secondSelect.disabled =
+                !firstHasCourse;
+
+            if (!firstHasCourse) {
+                secondSelect.value = '';
+
+                fillModuleGroups(categoryId, 2);
+                fillHours(categoryId, 2);
+            }
+        }
+
+        if (thirdSelect) {
+            thirdSelect.disabled =
+                !secondHasCourse;
+
+            if (!secondHasCourse) {
+                thirdSelect.value = '';
+
+                fillModuleGroups(categoryId, 3);
+                fillHours(categoryId, 3);
+            }
+        }
+    }
+
+    /*
+     * Seçim değiştiğinde ilgili satırı güncelle.
+     */
+    function handleCourseChange(
+        categoryId,
+        order
+    ) {
+        fillModuleGroups(
+            categoryId,
+            order
+        );
+
+        fillHours(
+            categoryId,
+            order
+        );
+
+        refreshPreferenceAvailability(
+            categoryId
+        );
+
+        refreshDuplicateOptions(
+            categoryId
+        );
+
+        updateProgress();
+        rebuildHiddenInputs();
+    }
+
+    function handleProgramChange(
+        categoryId,
+        order
+    ) {
+        updateProgress();
+        rebuildHiddenInputs();
+    }
+
+    function handleHourChange(
+        categoryId,
+        order
+    ) {
+        updateProgress();
+        rebuildHiddenInputs();
+    }
+
+    /*
+     * Üstteki saat sayacını güncelle.
+     */
+    function updateProgress()
+    {
+        let totalHours = 0;
+        let allFirstChoicesComplete = true;
+
+        document
+            .querySelectorAll('.category-card')
+            .forEach(categoryCard => {
+                const categoryId =
+                    Number(
+                        categoryCard.dataset.categoryId
+                    );
+
+                const firstCourse =
+                    getCourseSelect(
+                        categoryId,
+                        1
+                    );
+
+                const firstGroup =
+                    getGroupSelect(
+                        categoryId,
+                        1
+                    );
+
+                const firstHour =
+                    getHourSelect(
+                        categoryId,
+                        1
+                    );
+
+                if (
+                    !firstCourse ||
+                    !firstCourse.value ||
+                    (
+                        firstGroup &&
+                        firstGroup.disabled === false &&
+                        !firstGroup.value
+                    ) ||
+                    !firstHour ||
+                    !firstHour.value
+                ) {
+                    allFirstChoicesComplete = false;
+                }
+
+                if (
+                    firstHour &&
+                    firstHour.value
+                ) {
+                    const course =
+                        findCourse(
+                            firstCourse.value
+                        );
+
+                    const option =
+                        course?.gradeOptions?.find(
+                            item =>
+                                Number(item.id)
+                                ===
+                                Number(firstHour.value)
+                        );
+
+                    if (option) {
+                        totalHours +=
+                            Number(option.weeklyHours);
+                    }
+                }
+
+                const counter =
+                    categoryCard.querySelector(
+                        '.selected-count'
+                    );
+
+                if (counter) {
+                    let count = 0;
+
+                    for (
+                        let order = 1;
+                        order <= 3;
+                        order++
+                    ) {
+                        const select =
+                            getCourseSelect(
+                                categoryId,
+                                order
+                            );
+
+                        if (select && select.value) {
+                            count++;
+                        }
+                    }
+
+                    counter.textContent =
+                        `${count} tercih`;
+                }
+            });
+
+        const hoursCounter =
+            document.getElementById(
+                'hoursCounter'
+            );
+
+        const progressFill =
+            document.getElementById(
+                'progressFill'
+            );
+
+        const progressMessage =
+            document.getElementById(
+                'progressMessage'
+            );
+
+        const submitInfo =
+            document.getElementById(
+                'submitInfo'
+            );
+
+        const submitButton =
+            document.getElementById(
+                'submitButton'
+            );
+
+        hoursCounter.textContent =
+            `${totalHours} / ${requiredHours} saat`;
+
+        const percentage =
+            Math.min(
+                100,
+                requiredHours > 0
+                    ? (
+                        totalHours /
+                        requiredHours
+                    ) * 100
+                    : 0
+            );
+
+        progressFill.style.width =
+            `${percentage}%`;
+
+        const hoursComplete =
+            totalHours === requiredHours;
+
+        const complete =
+            allFirstChoicesComplete &&
+            hoursComplete &&
+            selectionOpen;
+
+        hoursCounter.classList.toggle(
+            'complete',
+            complete
+        );
+
+        progressFill.classList.toggle(
+            'complete',
+            complete
+        );
+
+        if (complete) {
+            progressMessage.textContent =
+                '✓ Birinci tercihler ve toplam ders saati tamamlandı.';
+
+            submitInfo.textContent =
+                'Tercihleriniz gönderilmeye hazır.';
+
+            submitButton.disabled =
+                false;
+
+            return;
+        }
+
+        submitButton.disabled =
+            true;
+
+        if (!allFirstChoicesComplete) {
+            progressMessage.textContent =
+                'Her ders grubunda 1. tercih, program ve saat seçmelisiniz.';
+
+            submitInfo.textContent =
+                'Üç ders grubundaki 1. tercihlerinizi tamamlayın.';
+
+            return;
+        }
+
+        if (totalHours < requiredHours) {
+            progressMessage.textContent =
+                `${requiredHours - totalHours} saat daha seçmeniz gerekiyor.`;
+        } else {
+            progressMessage.textContent =
+                'Toplam ders saati sınırı aşıldı.';
+        }
+
+        submitInfo.textContent =
+            `1. tercihlerin toplamı ${requiredHours} saat olmalıdır.`;
+    }
+
+    /*
+     * Hidden inputları oluştur.
+     */
+    function rebuildHiddenInputs()
     {
         const container =
-            document.getElementById('selectionInputs');
+            document.getElementById(
+                'selectionInputs'
+            );
 
         container.innerHTML = '';
 
-        selections.forEach(
-            (selection, index) => {
+        let index = 0;
 
-                const courseInput =
-                    document.createElement('input');
+        document
+            .querySelectorAll('.category-card')
+            .forEach(categoryCard => {
+                const categoryId =
+                    Number(
+                        categoryCard.dataset.categoryId
+                    );
 
-                courseInput.type = 'hidden';
-
-                courseInput.name =
-                    `selections[${index}][course_id]`;
-
-                courseInput.value =
-                    selection.courseId;
-
-                container.appendChild(courseInput);
-
-
-                const optionInput =
-                    document.createElement('input');
-
-                optionInput.type = 'hidden';
-
-                optionInput.name =
-                    `selections[${index}][course_grade_option_id]`;
-
-                optionInput.value =
-                    selection.optionId;
-
-                container.appendChild(optionInput);
-
-            }
-        );
-    }
-
-
-    function escapeHtml(text)
-    {
-        const div =
-            document.createElement('div');
-
-        div.textContent = text;
-
-        return div.innerHTML;
-    }
-
-
-    /*
-     * Ders saati butonları
-     */
-
-    document
-        .querySelectorAll('.course-option')
-        .forEach(input => {
-
-            input.addEventListener(
-                'change',
-                function () {
-
-                    const courseId =
-                        Number(this.dataset.courseId);
-
-                    const courseName =
-                        this.dataset.courseName;
-
-                    const optionId =
-                        Number(this.value);
-
-                    const hours =
-                        Number(this.dataset.hours);
-
-
-                    const existingIndex =
-                        selections.findIndex(
-                            selection =>
-                                selection.courseId === courseId
+                for (
+                    let order = 1;
+                    order <= 3;
+                    order++
+                ) {
+                    const courseSelect =
+                        getCourseSelect(
+                            categoryId,
+                            order
                         );
 
+                    const groupSelect =
+                        getGroupSelect(
+                            categoryId,
+                            order
+                        );
 
-                    /*
-                     * Aynı ders daha önce seçilmişse
-                     * saat seçeneğini değiştir.
-                     */
+                    const hourSelect =
+                        getHourSelect(
+                            categoryId,
+                            order
+                        );
 
-                    if (existingIndex >= 0) {
-
-                        selections[existingIndex] = {
-                            courseId,
-                            courseName,
-                            optionId,
-                            hours
-                        };
-
-                    } else {
-
-                        /*
-                         * Yeni ders tercihi
-                         */
-
-                        selections.push({
-                            courseId,
-                            courseName,
-                            optionId,
-                            hours
-                        });
-
+                    if (
+                        !courseSelect ||
+                        !courseSelect.value
+                    ) {
+                        continue;
                     }
 
-                    updateInterface();
+                    const fields = [
+                        [
+                            'course_id',
+                            courseSelect.value
+                        ],
+                        [
+                            'course_module_group_id',
+                            groupSelect?.value || ''
+                        ],
+                        [
+                            'course_grade_option_id',
+                            order === 1
+                                ? (
+                                    hourSelect?.value || ''
+                                )
+                                : ''
+                        ],
+                        [
+                            'preference_order',
+                            order
+                        ],
+                    ];
+
+                    fields.forEach(
+                        ([field, value]) => {
+                            const input =
+                                document.createElement(
+                                    'input'
+                                );
+
+                            input.type =
+                                'hidden';
+
+                            input.name =
+                                `selections[${index}][${field}]`;
+
+                            input.value =
+                                value;
+
+                            container.appendChild(
+                                input
+                            );
+                        }
+                    );
+
+                    index++;
                 }
-            );
-
-        });
-
+            });
+    }
 
     /*
-     * İlk açılış
+     * Mevcut kayıtları ekrana yükle.
      */
+    function loadExistingSelections()
+    {
+        existingSelections.forEach(
+            selection => {
+                const categoryId =
+                    Number(
+                        selection.categoryId
+                    );
 
-    updateInterface();
+                const order =
+                    Number(
+                        selection.preferenceOrder
+                    );
 
+                const courseSelect =
+                    getCourseSelect(
+                        categoryId,
+                        order
+                    );
+
+                if (!courseSelect) {
+                    return;
+                }
+
+                courseSelect.value =
+                    String(
+                        selection.courseId
+                    );
+
+                fillModuleGroups(
+                    categoryId,
+                    order,
+                    selection.moduleGroupId
+                );
+
+                fillHours(
+                    categoryId,
+                    order,
+                    selection.gradeOptionId
+                );
+            }
+        );
+
+        document
+            .querySelectorAll('.category-card')
+            .forEach(categoryCard => {
+                const categoryId =
+                    Number(
+                        categoryCard.dataset.categoryId
+                    );
+
+                refreshPreferenceAvailability(
+                    categoryId
+                );
+
+                refreshDuplicateOptions(
+                    categoryId
+                );
+            });
+
+        updateProgress();
+        rebuildHiddenInputs();
+    }
+
+    /*
+     * Ders değişiklikleri.
+     */
+    document
+        .querySelectorAll('.course-select')
+        .forEach(select => {
+            select.addEventListener(
+                'change',
+                function () {
+                    handleCourseChange(
+                        Number(
+                            this.dataset.categoryId
+                        ),
+                        Number(
+                            this.dataset.preferenceOrder
+                        )
+                    );
+                }
+            );
+        });
+
+    /*
+     * Program değişiklikleri.
+     */
+    document
+        .querySelectorAll('.module-group-select')
+        .forEach(select => {
+            select.addEventListener(
+                'change',
+                function () {
+                    handleProgramChange(
+                        Number(
+                            this.dataset.categoryId
+                        ),
+                        Number(
+                            this.dataset.preferenceOrder
+                        )
+                    );
+                }
+            );
+        });
+
+    /*
+     * Saat değişiklikleri.
+     */
+    document
+        .querySelectorAll('.grade-option-select')
+        .forEach(select => {
+            select.addEventListener(
+                'change',
+                function () {
+                    handleHourChange(
+                        Number(
+                            this.dataset.categoryId
+                        ),
+                        Number(
+                            this.dataset.preferenceOrder
+                        )
+                    );
+                }
+            );
+        });
+
+    /*
+     * Form gönderiminden hemen önce
+     * son bir güvenlik kontrolü.
+     */
+    document
+        .getElementById('selectionForm')
+        .addEventListener(
+            'submit',
+            function (event) {
+
+                updateProgress();
+                rebuildHiddenInputs();
+
+                let valid = true;
+                let totalHours = 0;
+
+                document
+                    .querySelectorAll('.category-card')
+                    .forEach(categoryCard => {
+                        const categoryId =
+                            Number(
+                                categoryCard.dataset.categoryId
+                            );
+
+                        const firstCourse =
+                            getCourseSelect(
+                                categoryId,
+                                1
+                            );
+
+                        const firstGroup =
+                            getGroupSelect(
+                                categoryId,
+                                1
+                            );
+
+                        const firstHour =
+                            getHourSelect(
+                                categoryId,
+                                1
+                            );
+
+                        if (
+                            !firstCourse ||
+                            !firstCourse.value
+                        ) {
+                            valid = false;
+                            return;
+                        }
+
+                        if (
+                            firstGroup &&
+                            !firstGroup.disabled &&
+                            !firstGroup.value
+                        ) {
+                            valid = false;
+                            return;
+                        }
+
+                        if (
+                            !firstHour ||
+                            !firstHour.value
+                        ) {
+                            valid = false;
+                            return;
+                        }
+
+                        const course =
+                            findCourse(
+                                firstCourse.value
+                            );
+
+                        const option =
+                            course?.gradeOptions?.find(
+                                item =>
+                                    Number(item.id)
+                                    ===
+                                    Number(firstHour.value)
+                            );
+
+                        if (option) {
+                            totalHours +=
+                                Number(
+                                    option.weeklyHours
+                                );
+                        }
+                    });
+
+                if (
+                    !valid ||
+                    totalHours !== requiredHours
+                ) {
+                    event.preventDefault();
+
+                    alert(
+                        `Tercihlerinizi tamamlayınız.\n\n` +
+                        `1. tercihlerin toplamı ` +
+                        `${requiredHours} saat olmalıdır.`
+                    );
+                }
+            }
+        );
+
+    /*
+     * İlk açılış.
+     */
+    loadExistingSelections();
+
+    /*
+     * Boş sayfada 2. ve 3. tercihleri kilitle.
+     */
+    document
+        .querySelectorAll('.category-card')
+        .forEach(categoryCard => {
+            refreshPreferenceAvailability(
+                Number(
+                    categoryCard.dataset.categoryId
+                )
+            );
+        });
+
+    updateProgress();
+    rebuildHiddenInputs();
 </script>
 
 </body>

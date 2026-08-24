@@ -4,28 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class StudentCourseSelection extends Model
+class StudentCoursePlacement extends Model
 {
     protected $fillable = [
         'student_id',
         'academic_year_id',
+        'student_course_selection_id',
         'course_id',
         'course_module_group_id',
+        'course_module_id',
         'course_grade_option_id',
+        'student_course_group_id',
         'weekly_hours',
-        'preference_order',
         'status',
-        'submitted_at',
+        'placed_at',
+        'confirmed_at',
         'notes',
     ];
 
     protected $casts = [
         'weekly_hours' => 'integer',
         'status' => 'integer',
-        'preference_order' => 'integer',
-        'submitted_at' => 'datetime',
+        'placed_at' => 'datetime',
+        'course_grade_option_id' => 'integer',
+        'confirmed_at' => 'datetime',
     ];
 
     public function student(): BelongsTo
@@ -36,6 +39,14 @@ class StudentCourseSelection extends Model
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function selection(): BelongsTo
+    {
+        return $this->belongsTo(
+            StudentCourseSelection::class,
+            'student_course_selection_id'
+        );
     }
 
     public function course(): BelongsTo
@@ -51,19 +62,28 @@ class StudentCourseSelection extends Model
         );
     }
 
-    public function placements(): HasMany
+    public function module(): BelongsTo
     {
-    return $this->hasMany(
-        StudentCoursePlacement::class,
-        'student_course_selection_id'
+        return $this->belongsTo(
+            CourseModule::class,
+            'course_module_id'
+        );
+    }
+
+    public function group(): BelongsTo
+    {
+    return $this->belongsTo(
+        StudentCourseGroup::class,
+        'student_course_group_id'
     );
     }
 
     public function gradeOption(): BelongsTo
     {
-        return $this->belongsTo(
-            CourseGradeOption::class,
-            'course_grade_option_id'
-        );
+    return $this->belongsTo(
+        CourseGradeOption::class,
+        'course_grade_option_id'
+    );
     }
+    
 }

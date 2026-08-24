@@ -46,4 +46,17 @@ class Course extends Model
     return $this->hasMany(CourseOffering::class);
     }
 
+    public function modules(): HasMany
+    {
+    return $this->hasMany(CourseModule::class)
+        ->orderBy('module_number');
+    }
+
+    public function moduleGroups(): HasMany
+    {
+    return $this->hasMany(
+        CourseModuleGroup::class
+    )->orderBy('name');
+    }
+
 }

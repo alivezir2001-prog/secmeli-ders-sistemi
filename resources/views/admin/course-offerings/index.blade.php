@@ -34,9 +34,17 @@
         }
 
         .container {
-            max-width: 1250px;
+            max-width: 1400px;
             margin: 30px auto;
-            padding: 0 20px 50px;
+            padding: 0 20px 60px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #245b91;
+            text-decoration: none;
+            font-weight: 700;
         }
 
         .topbar {
@@ -61,6 +69,7 @@
             border: 1px solid #cbd5e1;
             border-radius: 9px;
             background: white;
+            min-width: 180px;
         }
 
         .success {
@@ -73,11 +82,20 @@
             font-weight: 600;
         }
 
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
         .course-card {
             background: white;
             border-radius: 16px;
             padding: 22px;
-            margin-bottom: 18px;
+            margin-bottom: 22px;
             box-shadow: 0 4px 15px rgba(0,0,0,.05);
         }
 
@@ -90,8 +108,8 @@
         }
 
         .course-name {
-            font-size: 19px;
-            font-weight: 700;
+            font-size: 21px;
+            font-weight: 800;
         }
 
         .category {
@@ -100,120 +118,235 @@
             font-size: 13px;
         }
 
-        .status {
-            padding: 7px 11px;
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            padding: 6px 10px;
             border-radius: 999px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
         }
 
-        .status-open {
+        .badge-green {
             background: #dcfce7;
             color: #166534;
         }
 
-        .status-closed {
+        .badge-red {
             background: #fee2e2;
             color: #991b1b;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 18px;
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
         }
 
-        .info-box {
+        .badge-gray {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .group {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            margin-top: 14px;
+            overflow: hidden;
             background: #f8fafc;
-            border-radius: 10px;
-            padding: 14px;
         }
 
-        .info-label {
+        .group-header {
+            padding: 14px 16px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .group-name {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .module {
+            margin: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .module-name {
+            font-weight: 800;
+        }
+
+        .option-list {
+            padding: 10px;
+            display: grid;
+            gap: 9px;
+        }
+
+        .option-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 11px;
+            padding: 12px;
+            background: white;
+        }
+
+        .option-card.open {
+            border-left: 4px solid #16a34a;
+        }
+
+        .option-card.closed {
+            border-left: 4px solid #cbd5e1;
+        }
+
+        .option-main {
+            display: grid;
+            grid-template-columns: 150px 120px 120px 1fr;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .option-title {
+            font-weight: 800;
+        }
+
+        .option-subtitle {
             color: #64748b;
             font-size: 12px;
-            margin-bottom: 5px;
+            margin-top: 4px;
         }
 
-        .info-value {
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
             font-size: 18px;
             font-weight: 800;
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 14px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-        }
-
-        .field label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #475569;
-        }
-
-        .field input[type="number"] {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 9px;
-        }
-
-        .check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-height: 42px;
-        }
-
-        .minimum {
-            background: #eff6ff;
-            color: #1d4ed8;
-            border-radius: 9px;
-            padding: 10px 12px;
-            font-weight: 700;
-        }
-
-        .actions {
-            margin-top: 16px;
+        .status-right {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .button {
             border: 0;
             border-radius: 9px;
-            padding: 11px 18px;
+            padding: 9px 14px;
             background: #245b91;
             color: white;
             font-weight: 700;
             cursor: pointer;
         }
 
-        .back {
-            display: inline-block;
-            margin-bottom: 18px;
-            color: #245b91;
-            text-decoration: none;
-            font-weight: 600;
+        .button-secondary {
+            background: #e2e8f0;
+            color: #334155;
         }
 
-        @media (max-width: 800px) {
+        .button-danger {
+            background: #b91c1c;
+        }
+
+        .settings {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .settings.open {
+            display: block;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 170px 170px 190px 160px 1fr;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 5px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 9px;
+            padding: 9px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .empty {
+            padding: 18px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .note {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media (max-width: 1100px) {
+            .option-main,
+            .settings-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .status-right {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 700px) {
             .topbar,
-            .course-header {
+            .course-header,
+            .module-header {
                 flex-direction: column;
                 align-items: stretch;
             }
 
-            .info-grid,
-            .form-grid {
+            .option-main,
+            .settings-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -242,22 +375,29 @@
         </div>
     @endif
 
-    <div class="topbar">
+    @if($errors->any())
+        <div class="error">
+            @foreach($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
+    <div class="topbar">
         <div>
             <h2>Ders Kontenjanları</h2>
-            <p>
-                {{ $academicYear->name }} eğitim yılı
-            </p>
+            <p>{{ $academicYear->name }} eğitim yılı</p>
         </div>
 
         <form method="GET">
+
             <select
                 name="academic_year_id"
                 class="year-select"
                 onchange="this.form.submit()"
             >
                 @foreach($academicYears as $year)
+
                     <option
                         value="{{ $year->id }}"
                         {{ (int) $year->id === (int) $academicYear->id ? 'selected' : '' }}
@@ -265,42 +405,14 @@
                         {{ $year->name }}
                         {{ $year->active ? ' (Aktif)' : '' }}
                     </option>
+
                 @endforeach
             </select>
-        </form>
 
+        </form>
     </div>
 
     @foreach($courses as $course)
-
-        @php
-            $offering = $course->offerings->first();
-
-            $selectedCount =
-                (int) ($selectionCounts[$course->id] ?? 0);
-
-            $minimumStudents =
-                $offering?->minimum_students ?? 10;
-
-            $maximumStudents =
-                $offering?->maximum_students;
-
-            $allowMultipleClasses =
-                $offering?->allow_multiple_classes ?? false;
-
-            $maximumClasses =
-                $offering?->maximum_classes ?? 1;
-
-            $active =
-                $offering?->active ?? true;
-
-            $canOpen =
-                $selectedCount >= 10;
-
-            $isFull =
-                $maximumStudents !== null &&
-                $selectedCount >= $maximumStudents;
-        @endphp
 
         <section class="course-card">
 
@@ -316,152 +428,392 @@
                     </div>
                 </div>
 
-                @if(! $canOpen)
-                    <div class="status status-closed">
-                        Minimum öğrenci şartı sağlanmadı
-                    </div>
-                @elseif($isFull && ! $allowMultipleClasses)
-                    <div class="status status-closed">
-                        Kontenjan dolu
-                    </div>
-                @else
-                    <div class="status status-open">
-                        Açılabilir
-                    </div>
-                @endif
+                <div class="badges">
 
-            </div>
+                    @if($course->is_modular)
+                        <span class="badge badge-blue">
+                            {{ $course->max_selections }} modül
+                        </span>
 
-            <div class="info-grid">
+                        <span class="badge badge-green">
+                            Modüler
+                        </span>
+                    @else
+                        <span class="badge badge-gray">
+                            Tek aşamalı
+                        </span>
+                    @endif
 
-                <div class="info-box">
-                    <div class="info-label">
-                        Tercih eden öğrenci
-                    </div>
-
-                    <div class="info-value">
-                        {{ $selectedCount }}
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <div class="info-label">
-                        Sistem minimumu
-                    </div>
-
-                    <div class="info-value">
-                        {{ $minimumStudents }}
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <div class="info-label">
-                        Maksimum öğrenci
-                    </div>
-
-                    <div class="info-value">
-                        {{ $maximumStudents ?? 'Sınırsız' }}
-                    </div>
                 </div>
 
             </div>
 
-            <form
-                method="POST"
-                action="{{ route('admin.course-offerings.update', $course) }}"
-            >
-                @csrf
-                @method('PUT')
+            @if($course->is_modular)
 
-                <input
-                    type="hidden"
-                    name="academic_year_id"
-                    value="{{ $academicYear->id }}"
-                >
+                @forelse($course->moduleGroups as $group)
 
-                <div class="form-grid">
+                    <div class="group">
 
-                    <div class="field">
-                        <label>
-                            Minimum öğrenci
-                        </label>
+                        <div class="group-header">
 
-                        <div class="minimum">
-                            10 öğrenci
+                            <div class="group-name">
+                                {{ $group->name }}
+                            </div>
+
+                            <div style="margin-top:6px;">
+
+                                @if($group->active)
+                                    <span class="badge badge-green">
+                                        Program aktif
+                                    </span>
+                                @else
+                                    <span class="badge badge-red">
+                                        Program pasif
+                                    </span>
+                                @endif
+
+                                <span class="badge badge-gray">
+                                    {{ $group->modules->count() }} modül
+                                </span>
+
+                            </div>
+
                         </div>
+
+                        @foreach($group->modules as $module)
+
+                            <div class="module">
+
+                                <div class="module-header">
+
+                                    <div class="module-name">
+                                        {{ $module->name }}
+                                    </div>
+
+                                    <span class="badge badge-gray">
+                                        {{ $module->hourOptions->count() }}
+                                        saat seçeneği
+                                    </span>
+
+                                </div>
+
+                                <div class="option-list">
+
+                                    @forelse($module->hourOptions as $hourOption)
+
+                                        @php
+                                            $count =
+                                                (int) (
+                                                    $selectionCounts[
+                                                        $module->id . ':' . $hourOption->weekly_hours
+                                                    ]->total
+                                                    ?? 0
+                                                );
+
+                                            $offering =
+                                                $course->offerings->first(
+                                                    fn ($item) =>
+                                                        (int) $item->course_module_id === (int) $module->id
+                                                        &&
+                                                        (int) $item->weekly_hours === (int) $hourOption->weekly_hours
+                                                );
+
+                                            $isOpen =
+                                                $offering?->active ?? false;
+
+                                            $maximum =
+                                                $offering?->maximum_students;
+
+                                            $isFull =
+                                                $maximum !== null
+                                                && $count >= $maximum;
+                                        @endphp
+
+                                        <div
+                                            class="option-card {{ $isOpen ? 'open' : 'closed' }}"
+                                        >
+
+                                            <div class="option-main">
+
+                                                <div>
+                                                    <div class="option-title">
+                                                        {{ $hourOption->weekly_hours }}
+                                                        ders saati
+                                                    </div>
+
+                                                    <div class="option-subtitle">
+                                                        Modül {{ $module->module_number }}
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div class="stat-label">
+                                                        Tercih eden
+                                                    </div>
+
+                                                    <div class="stat-value">
+                                                        {{ $count }}
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div class="stat-label">
+                                                        Sistem minimumu
+                                                    </div>
+
+                                                    <div class="stat-value">
+                                                        10
+                                                    </div>
+                                                </div>
+
+                                                <div class="status-right">
+
+                                                    @if($isOpen)
+
+                                                        @if($isFull)
+
+                                                            <span class="badge badge-red">
+                                                                Kontenjan dolu
+                                                            </span>
+
+                                                        @elseif($count >= 10)
+
+                                                            <span class="badge badge-green">
+                                                                Açılabilir
+                                                            </span>
+
+                                                        @else
+
+                                                            <span class="badge badge-gray">
+                                                                10 öğrenci bekleniyor
+                                                            </span>
+
+                                                        @endif
+
+                                                    @else
+
+                                                        <span class="badge badge-gray">
+                                                            Açılmamış
+                                                        </span>
+
+                                                    @endif
+
+                                                    <button
+                                                        type="button"
+                                                        class="button button-secondary"
+                                                        onclick="document.getElementById('settings-{{ $module->id }}-{{ $hourOption->weekly_hours }}').classList.toggle('open')"
+                                                    >
+                                                        {{ $isOpen ? 'Ayarlar' : 'Aç' }}
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div
+                                                id="settings-{{ $module->id }}-{{ $hourOption->weekly_hours }}"
+                                                class="settings"
+                                            >
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route(
+                                                        'admin.course-offerings.update',
+                                                        $course
+                                                    ) }}"
+                                                >
+                                                    @csrf
+                                                    @method('PUT')
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="academic_year_id"
+                                                        value="{{ $academicYear->id }}"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="course_module_id"
+                                                        value="{{ $module->id }}"
+                                                    >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="weekly_hours"
+                                                        value="{{ $hourOption->weekly_hours }}"
+                                                    >
+
+                                                    <div class="settings-grid">
+
+                                                        <div>
+                                                            <div class="field">
+                                                                <label>
+                                                                    Modül
+                                                                </label>
+
+                                                                <div class="info-box">
+                                                                    {{ $module->name }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div>
+                                                            <div class="field">
+                                                                <label>
+                                                                    Haftalık saat
+                                                                </label>
+
+                                                                <div class="info-box">
+                                                                    {{ $hourOption->weekly_hours }}
+                                                                    saat
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="field">
+                                                            <label>
+                                                                Maksimum öğrenci
+                                                            </label>
+
+                                                            <input
+                                                                type="number"
+                                                                name="maximum_students"
+                                                                min="1"
+                                                                value="{{ $offering?->maximum_students }}"
+                                                                placeholder="Sınırsız"
+                                                            >
+                                                        </div>
+
+                                                        <div class="field">
+                                                            <label>
+                                                                Maksimum sınıf
+                                                            </label>
+
+                                                            <input
+                                                                type="number"
+                                                                name="maximum_classes"
+                                                                min="1"
+                                                                max="20"
+                                                                value="{{ $offering?->maximum_classes ?? 1 }}"
+                                                            >
+                                                        </div>
+
+                                                        <div class="field">
+
+                                                            <label>
+                                                                Birden fazla sınıf
+                                                            </label>
+
+                                                            <label style="
+                                                                display:flex;
+                                                                align-items:center;
+                                                                gap:8px;
+                                                                min-height:38px;
+                                                            ">
+
+                                                                <input
+                                                                    type="checkbox"
+                                                                    name="allow_multiple_classes"
+                                                                    value="1"
+                                                                    {{ $offering?->allow_multiple_classes ? 'checked' : '' }}
+                                                                >
+
+                                                                İzin ver
+                                                            </label>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="settings-grid" style="margin-top:12px;">
+
+                                                        <div class="field">
+
+                                                            <label>
+                                                                Durum
+                                                            </label>
+
+                                                            <select name="active">
+
+                                                                <option
+                                                                    value="1"
+                                                                    {{ $isOpen ? 'selected' : '' }}
+                                                                >
+                                                                    Açık
+                                                                </option>
+
+                                                                <option
+                                                                    value="0"
+                                                                    {{ !$isOpen ? 'selected' : '' }}
+                                                                >
+                                                                    Kapalı
+                                                                </option>
+
+                                                            </select>
+
+                                                        </div>
+
+                                                        <div>
+                                                            <div class="info-box">
+                                                                Minimum öğrenci:
+                                                                <strong>10</strong>
+                                                            </div>
+                                                        </div>
+
+                                                        <div></div>
+                                                        <div></div>
+
+                                                        <div class="status-right">
+
+                                                            <button
+                                                                type="submit"
+                                                                class="button"
+                                                            >
+                                                                Kaydet
+                                                            </button>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </form>
+
+                                            </div>
+
+                                        </div>
+
+                                    @empty
+
+                                        <div class="empty">
+                                            Bu modül için tanımlanmış haftalık saat seçeneği yok.
+                                        </div>
+
+                                    @endforelse
+
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
                     </div>
 
-                    <div class="field">
-                        <label for="maximum_{{ $course->id }}">
-                            Maksimum öğrenci
-                        </label>
+                @empty
 
-                        <input
-                            type="number"
-                            id="maximum_{{ $course->id }}"
-                            name="maximum_students"
-                            min="1"
-                            value="{{ $maximumStudents }}"
-                            placeholder="Sınırsız"
-                        >
+                    <div class="empty">
+                        Bu ders için aktif program/modül grubu bulunmuyor.
                     </div>
 
-                    <div class="field">
-                        <label for="classes_{{ $course->id }}">
-                            Maksimum sınıf sayısı
-                        </label>
+                @endforelse
 
-                        <input
-                            type="number"
-                            id="classes_{{ $course->id }}"
-                            name="maximum_classes"
-                            min="1"
-                            max="20"
-                            value="{{ $maximumClasses }}"
-                        >
-                    </div>
+            @else
 
+                <div class="note">
+                    Bu ders tek aşamalıdır. Modül bazlı kontenjan tanımı
+                    kullanılmayacaktır.
                 </div>
 
-                <div style="margin-top:16px;">
-
-                    <label class="check">
-                        <input
-                            type="checkbox"
-                            name="allow_multiple_classes"
-                            value="1"
-                            {{ $allowMultipleClasses ? 'checked' : '' }}
-                        >
-
-                        Aynı ders için birden fazla sınıf açılabilir
-                    </label>
-
-                    <label
-                        class="check"
-                        style="margin-top:8px;"
-                    >
-                        <input
-                            type="checkbox"
-                            name="active"
-                            value="1"
-                            {{ $active ? 'checked' : '' }}
-                        >
-
-                        Ders bu eğitim yılında aktif
-                    </label>
-
-                </div>
-
-                <div class="actions">
-                    <button
-                        type="submit"
-                        class="button"
-                    >
-                        Kaydet
-                    </button>
-                </div>
-
-            </form>
+            @endif
 
         </section>
 

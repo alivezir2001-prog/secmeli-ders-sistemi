@@ -6,32 +6,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class StudentCourseSelection extends Model
+class StudentCourseGroup extends Model
 {
     protected $fillable = [
-        'student_id',
         'academic_year_id',
         'course_id',
         'course_module_group_id',
-        'course_grade_option_id',
+        'course_module_id',
         'weekly_hours',
-        'preference_order',
+        'group_number',
+        'minimum_students',
+        'maximum_students',
         'status',
-        'submitted_at',
+        'auto_created',
+        'confirmed_at',
         'notes',
     ];
 
     protected $casts = [
         'weekly_hours' => 'integer',
+        'group_number' => 'integer',
+        'minimum_students' => 'integer',
+        'maximum_students' => 'integer',
         'status' => 'integer',
-        'preference_order' => 'integer',
-        'submitted_at' => 'datetime',
+        'auto_created' => 'boolean',
+        'confirmed_at' => 'datetime',
     ];
-
-    public function student(): BelongsTo
-    {
-        return $this->belongsTo(Student::class);
-    }
 
     public function academicYear(): BelongsTo
     {
@@ -51,19 +51,29 @@ class StudentCourseSelection extends Model
         );
     }
 
-    public function placements(): HasMany
-    {
-    return $this->hasMany(
-        StudentCoursePlacement::class,
-        'student_course_selection_id'
-    );
-    }
-
-    public function gradeOption(): BelongsTo
+    public function module(): BelongsTo
     {
         return $this->belongsTo(
-            CourseGradeOption::class,
-            'course_grade_option_id'
+            CourseModule::class,
+            'course_module_id'
         );
+    }
+
+    public function placements(): HasMany
+    {
+        return $this->hasMany(
+            StudentCoursePlacement::class,
+            'student_course_group_id'
+        );
+    }
+
+    public function confirmed(): bool
+    {
+        return $this->status === 3;
+    }
+
+    public function active(): bool
+    {
+        return in_array($this->status, [1, 2], true);
     }
 }

@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class CourseGradeOption extends Model
+class CourseModuleHourOption extends Model
 {
     protected $fillable = [
-        'course_id',
+        'course_module_id',
         'grade',
         'weekly_hours',
         'active',
@@ -21,16 +20,11 @@ class CourseGradeOption extends Model
         'active' => 'boolean',
     ];
 
-    public function course(): BelongsTo
+    public function module(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
-    }
-
-    public function offerings(): HasMany
-    {
-        return $this->hasMany(
-            CourseOffering::class,
-            'course_grade_option_id'
+        return $this->belongsTo(
+            CourseModule::class,
+            'course_module_id'
         );
     }
 }

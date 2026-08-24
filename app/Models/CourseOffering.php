@@ -10,6 +10,8 @@ class CourseOffering extends Model
     protected $fillable = [
         'academic_year_id',
         'course_id',
+        'course_module_id',
+        'weekly_hours',
         'minimum_students',
         'maximum_students',
         'allow_multiple_classes',
@@ -18,6 +20,7 @@ class CourseOffering extends Model
     ];
 
     protected $casts = [
+        'weekly_hours' => 'integer',
         'minimum_students' => 'integer',
         'maximum_students' => 'integer',
         'allow_multiple_classes' => 'boolean',
@@ -35,17 +38,19 @@ class CourseOffering extends Model
         return $this->belongsTo(Course::class);
     }
 
-    /**
-     * Dersin açılabilmesi için minimum öğrenci şartı sağlandı mı?
-     */
+    public function module(): BelongsTo
+    {
+        return $this->belongsTo(
+            CourseModule::class,
+            'course_module_id'
+        );
+    }
+
     public function minimumMet(int $studentCount): bool
     {
         return $studentCount >= $this->minimum_students;
     }
 
-    /**
-     * Maksimum kontenjan tanımlanmışsa aşıldı mı?
-     */
     public function maximumReached(int $studentCount): bool
     {
         return $this->maximum_students !== null

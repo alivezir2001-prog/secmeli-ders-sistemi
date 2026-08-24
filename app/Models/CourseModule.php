@@ -6,17 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class CourseGradeOption extends Model
+class CourseModule extends Model
 {
     protected $fillable = [
         'course_id',
-        'grade',
+        'module_number',
+        'name',
         'weekly_hours',
         'active',
+        'notes',
     ];
 
     protected $casts = [
-        'grade' => 'integer',
+        'module_number' => 'integer',
         'weekly_hours' => 'integer',
         'active' => 'boolean',
     ];
@@ -26,11 +28,20 @@ class CourseGradeOption extends Model
         return $this->belongsTo(Course::class);
     }
 
-    public function offerings(): HasMany
+    public function moduleGroup(): BelongsTo
     {
-        return $this->hasMany(
-            CourseOffering::class,
-            'course_grade_option_id'
-        );
+    return $this->belongsTo(
+        CourseModuleGroup::class,
+        'course_module_group_id'
+    );
     }
+
+    public function hourOptions(): HasMany
+    {
+    return $this->hasMany(
+        CourseModuleHourOption::class,
+        'course_module_id'
+    )->orderBy('weekly_hours');
+    }
+
 }

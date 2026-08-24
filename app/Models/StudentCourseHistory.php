@@ -11,6 +11,7 @@ class StudentCourseHistory extends Model
         'student_id',
         'academic_year_id',
         'course_id',
+        'course_module_id',
         'course_grade_option_id',
         'grade',
         'weekly_hours',
@@ -37,6 +38,14 @@ class StudentCourseHistory extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function module(): BelongsTo
+    {
+    return $this->belongsTo(
+        CourseModule::class,
+        'course_module_id'
+    );
     }
 
     public function gradeOption(): BelongsTo

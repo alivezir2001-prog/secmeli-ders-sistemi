@@ -12,9 +12,6 @@ class CourseSelectionController extends Controller
         Request $request,
         CourseSelectionService $service
     ) {
-        /*
-         * Oturum açmış kullanıcının bağlı olduğu öğrenci.
-         */
         $student = auth()->user()->student;
 
         abort_unless(
@@ -23,15 +20,13 @@ class CourseSelectionController extends Controller
             'Bu kullanıcı bir öğrenci hesabına bağlı değil.'
         );
 
-       $academicYear = AcademicYear::where('active', true)
-        ->firstOrFail();
+        $academicYear = AcademicYear::where(
+            'active',
+            true
+        )->firstOrFail();
 
-        /*
-         * Tercih dönemi açık mı?
-         *
-         * Bu değer Blade'e gönderiliyor.
-         */
-        $selectionOpen = $academicYear->selectionsAreOpen();
+        $selectionOpen =
+            $academicYear->selectionsAreOpen();
 
         $courses = $service->availableCourses(
             $student,
@@ -43,7 +38,12 @@ class CourseSelectionController extends Controller
                 'academic_year_id',
                 $academicYear->id
             )
-            ->with('course', 'gradeOption')
+            ->with([
+                'course',
+                'gradeOption',
+                'moduleGroup',
+            ])
+            ->orderBy('course_id')
             ->orderBy('preference_order')
             ->get();
 
@@ -64,10 +64,6 @@ class CourseSelectionController extends Controller
         Request $request,
         CourseSelectionService $service
     ) {
-        /*
-         * Öğrenciyi kesinlikle POST verisinden almıyoruz.
-         * Her zaman giriş yapan kullanıcının öğrencisi.
-         */
         $student = auth()->user()->student;
 
         abort_unless(
@@ -76,14 +72,11 @@ class CourseSelectionController extends Controller
             'Bu kullanıcı bir öğrenci hesabına bağlı değil.'
         );
 
-        $academicYear = AcademicYear::where('active', true)
-            ->firstOrFail();
+        $academicYear = AcademicYear::where(
+            'active',
+            true
+        )->firstOrFail();
 
-        /*
-         * TERCIH DÖNEMİ KONTROLÜ
-         *
-         * Dönem kapalıysa hiçbir POST isteği kaydedilmez.
-         */
         if (! $academicYear->selectionsAreOpen()) {
             return back()
                 ->withErrors([
@@ -94,13 +87,18 @@ class CourseSelectionController extends Controller
         $result = $service->saveSelections(
             $student,
             $academicYear->id,
-            $request->input('selections', [])
+            $request->input(
+                'selections',
+                []
+            )
         );
 
         if (! $result['valid']) {
             return back()
                 ->withInput()
-                ->withErrors($result['errors']);
+                ->withErrors(
+                    $result['errors']
+                );
         }
 
         return redirect()
