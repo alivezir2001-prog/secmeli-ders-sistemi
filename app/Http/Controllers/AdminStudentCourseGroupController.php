@@ -176,6 +176,13 @@ class AdminStudentCourseGroupController extends Controller
         Request $request,
         StudentCourseGroup $group
     ) {
+
+        if ($group->confirmed_at !== null) {
+            return back()->withErrors([
+                'Kesinleştirilmiş grubun durumu değiştirilemez.',
+            ]);
+        }
+
         $validated = $request->validate([
             'status' => [
                 'required',
@@ -186,7 +193,7 @@ class AdminStudentCourseGroupController extends Controller
 
         $group->update([
             'status' =>
-                (int) $validated['status'],
+            (int) $validated['status'],
         ]);
 
         if (
@@ -225,7 +232,7 @@ class AdminStudentCourseGroupController extends Controller
 
         $group->update([
             'notes' =>
-                $validated['notes'] ?? null,
+            $validated['notes'] ?? null,
         ]);
 
         return back()->with(
@@ -279,41 +286,41 @@ class AdminStudentCourseGroupController extends Controller
      * yeniden dağıtır.
      */
     public function closeAndRedistribute(
-    StudentCourseGroup $group,
-    GroupManagementService $service
-) {
-    try {
-        $result =
-            $service->closeAndRedistribute(
-                $group
-            );
-    } catch (RuntimeException $e) {
-        return back()
-            ->withErrors([
-                $e->getMessage(),
-            ]);
+        StudentCourseGroup $group,
+        GroupManagementService $service
+    ) {
+        try {
+            $result =
+                $service->closeAndRedistribute(
+                    $group
+                );
+        } catch (RuntimeException $e) {
+            return back()
+                ->withErrors([
+                    $e->getMessage(),
+                ]);
+        }
+
+        if (! $result['success']) {
+            $unmovedCount =
+                count($result['unmoved']);
+
+            return back()
+                ->withErrors([
+                    "Grup kapatılamadı. " .
+                        $result['moved'] .
+                        " öğrenci başka gruplara taşındı; " .
+                        $unmovedCount .
+                        " öğrenci için uygun kapasite bulunamadı. " .
+                        "Kalan öğrencileri başka gruplara manuel taşıdıktan sonra "
+                        . "grubu tekrar kapatmayı deneyebilirsiniz.",
+                ]);
+        }
+
+        return back()->with(
+            'success',
+            $result['moved'] .
+                ' öğrenci diğer uygun gruplara dağıtıldı ve grup kapatıldı.'
+        );
     }
-
-    if (! $result['success']) {
-        $unmovedCount =
-            count($result['unmoved']);
-
-        return back()
-            ->withErrors([
-                "Grup kapatılamadı. " .
-                $result['moved'] .
-                " öğrenci başka gruplara taşındı; " .
-                $unmovedCount .
-                " öğrenci için uygun kapasite bulunamadı. " .
-                "Kalan öğrencileri başka gruplara manuel taşıdıktan sonra "
-                . "grubu tekrar kapatmayı deneyebilirsiniz.",
-            ]);
-    }
-
-    return back()->with(
-        'success',
-        $result['moved'] .
-        ' öğrenci diğer uygun gruplara dağıtıldı ve grup kapatıldı.'
-    );
-}
 }

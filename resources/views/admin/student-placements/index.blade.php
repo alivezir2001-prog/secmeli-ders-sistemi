@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,7 +79,7 @@
             background: white;
             border-radius: 14px;
             margin-bottom: 16px;
-            box-shadow: 0 4px 15px rgba(15,23,42,.05);
+            box-shadow: 0 4px 15px rgba(15, 23, 42, .05);
             overflow: hidden;
         }
 
@@ -194,7 +195,7 @@
             background: white;
             border-radius: 14px;
             padding: 18px;
-            box-shadow: 0 4px 15px rgba(15,23,42,.05);
+            box-shadow: 0 4px 15px rgba(15, 23, 42, .05);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -237,6 +238,7 @@
         }
 
         @media (max-width: 700px) {
+
             .topbar,
             .student-header,
             .bottom-bar {
@@ -253,74 +255,69 @@
 
 <body>
 
-<header class="header">
-    <h1>Öğrenci Yerleştirmeleri</h1>
-    <p>{{ $academicYear->name }} eğitim öğretim yılı</p>
-</header>
+    <header class="header">
+        <h1>Öğrenci Yerleştirmeleri</h1>
+        <p>{{ $academicYear->name }} eğitim öğretim yılı</p>
+    </header>
 
-<main class="container">
+    <main class="container">
 
-    @if(session('success'))
+        @if(session('success'))
         <div class="success">
             {{ session('success') }}
         </div>
-    @endif
+        @endif
 
-    @if($errors->any())
+        @if($errors->any())
         <div class="error">
             @foreach($errors->all() as $error)
-                <div>{{ $error }}</div>
+            <div>{{ $error }}</div>
             @endforeach
         </div>
-    @endif
+        @endif
 
-    <div class="topbar">
-        <div>
-            <h2 style="margin:0 0 5px;">
-                Tercihlerden Yerleştirmeye
-            </h2>
+        <div class="topbar">
+            <div>
+                <h2 style="margin:0 0 5px;">
+                    Tercihlerden Yerleştirmeye
+                </h2>
 
-            <div style="color:#64748b;font-size:13px;">
-                Öğrencinin tercihi değişmez; okul gerçek yerleştirmeyi belirler.
+                <div style="color:#64748b;font-size:13px;">
+                    Öğrencinin tercihi değişmez; okul gerçek yerleştirmeyi belirler.
+                </div>
             </div>
-        </div>
 
-        <form method="GET">
-            <select
-                class="year-select"
-                name="academic_year_id"
-                onchange="this.form.submit()"
-            >
-                @foreach($academicYears as $year)
+            <form method="GET">
+                <select
+                    class="year-select"
+                    name="academic_year_id"
+                    onchange="this.form.submit()">
+                    @foreach($academicYears as $year)
                     <option
                         value="{{ $year->id }}"
-                        {{ (int) $year->id === (int) $academicYear->id ? 'selected' : '' }}
-                    >
+                        {{ (int) $year->id === (int) $academicYear->id ? 'selected' : '' }}>
                         {{ $year->name }}
                         {{ $year->active ? ' (Aktif)' : '' }}
                     </option>
-                @endforeach
-            </select>
-        </form>
-    </div>
-
-    @php
-        $totalRows = $rows->count();
-        $placedRows = $rows->filter(
-            fn ($row) => $row['placement']
-                && (int) $row['placement']->status === 2
-        )->count();
-    @endphp
-
-    @forelse($rows->groupBy(fn ($row) => $row['selection']->student_id) as $studentId => $studentRows)
+                    @endforeach
+                </select>
+            </form>
+        </div>
 
         @php
-            $firstRow = $studentRows->first();
-            $student = $firstRow['selection']->student;
-            $studentComplete = $studentRows->every(
-                fn ($row) => $row['placement']
-                    && (int) $row['placement']->status === 2
-            );
+        $totalRows = $requiredPlacementCount;
+        $placedRows = $placedCategoryKeys;
+        @endphp
+
+        @forelse($rows->groupBy(fn ($row) => $row['selection']->student_id) as $studentId => $studentRows)
+
+        @php
+        $firstRow = $studentRows->first();
+        $student = $firstRow['selection']->student;
+        $studentComplete = $studentRows->every(
+        fn ($row) => $row['placement']
+        && (int) $row['placement']->status === 2
+        );
         @endphp
 
         <section class="student-card">
@@ -340,249 +337,244 @@
                 </div>
 
                 @if($studentComplete)
-                    <span class="status status-placed">
-                        Tüm tercihler yerleştirildi
-                    </span>
+                <span class="status status-placed">
+                    Tüm tercihler yerleştirildi
+                </span>
                 @else
-                    <span class="status status-waiting">
-                        Yerleştirme bekliyor
-                    </span>
+                <span class="status status-waiting">
+                    Yerleştirme bekliyor
+                </span>
                 @endif
 
             </div>
 
             @foreach($studentRows as $row)
 
-                @php
-                    $selection = $row['selection'];
-                    $placement = $row['placement'];
-                    $suggested = $row['suggestedModule'];
+            @php
+            $selection = $row['selection'];
+            $placement = $row['placement'];
+            $suggested = $row['suggestedModule'];
 
-                    $course = $selection->course;
-                    $group = $selection->moduleGroup;
+            $course = $selection->course;
+            $group = $selection->moduleGroup;
 
-                    $modules = $group
-                        ? $group->modules()
-                            ->where('active', true)
-                            ->orderBy('module_number')
-                            ->get()
-                        : collect();
+            $modules = $group
+            ? $group->modules()
+            ->where('active', true)
+            ->orderBy('module_number')
+            ->get()
+            : collect();
 
-                    $selectedModuleId =
-                        $placement?->course_module_id
-                        ?? $suggested?->id;
-                @endphp
+            $selectedModuleId =
+            $placement?->course_module_id
+            ?? $suggested?->id;
+            @endphp
 
-                <div class="row">
+            <div class="row">
 
-                    <form
-                        method="POST"
-                        action="{{ route(
+                <form
+                    method="POST"
+                    action="{{ route(
                             'admin.student-placements.place',
                             $selection
-                        ) }}"
-                    >
+                        ) }}">
 
-                        @csrf
-                        @method('PUT')
+                    @csrf
+                    @method('PUT')
 
-                        <div class="row-grid">
+                    <div class="row-grid">
 
-                            <div>
-                                <div class="label">
-                                    DERS
-                                </div>
-
-                                <div class="value">
-                                    {{ $course->name }}
-                                </div>
-
-                                <div class="subvalue">
-                                    {{ $course->category?->name }}
-                                </div>
+                        <div>
+                            <div class="label">
+                                DERS
                             </div>
 
-                            <div>
-                                <div class="label">
-                                    PROGRAM / ALAN
-                                </div>
-
-                                <div class="value">
-                                    {{ $group?->name ?? $course->name }}
-                                </div>
+                            <div class="value">
+                                {{ $course->name }}
                             </div>
 
-                            <div>
-                                <div class="label">
-                                    HAFTALIK SAAT
-                                </div>
+                            <div class="subvalue">
+                                {{ $course->category?->name }}
+                            </div>
+                        </div>
 
-                                <div class="value">
-                                    {{ $selection->weekly_hours }}
-                                    saat
-                                </div>
+                        <div>
+                            <div class="label">
+                                PROGRAM / ALAN
                             </div>
 
-                            <div>
-                                <div class="label">
-                                    MODÜL
-                                </div>
+                            <div class="value">
+                                {{ $group?->name ?? $course->name }}
+                            </div>
+                        </div>
 
-                                @if($modules->count())
+                        <div>
+                            <div class="label">
+                                HAFTALIK SAAT
+                            </div>
 
-                                    <select name="course_module_id">
+                            <div class="value">
+                                {{ $selection->weekly_hours }}
+                                saat
+                            </div>
+                        </div>
 
-                                        @foreach($modules as $module)
+                        <div>
+                            <div class="label">
+                                MODÜL
+                            </div>
 
-                                            <option
-                                                value="{{ $module->id }}"
-                                                {{ (int) $selectedModuleId === (int) $module->id ? 'selected' : '' }}
-                                            >
-                                                Modül {{ $module->module_number }}
-                                                —
-                                                {{ $module->name }}
-                                            </option>
+                            @if($modules->count())
 
-                                        @endforeach
+                            <select name="course_module_id">
 
-                                    </select>
+                                @foreach($modules as $module)
 
-                                    @if($suggested && !$placement)
-                                        <div style="
+                                <option
+                                    value="{{ $module->id }}"
+                                    {{ (int) $selectedModuleId === (int) $module->id ? 'selected' : '' }}>
+                                    Modül {{ $module->module_number }}
+                                    —
+                                    {{ $module->name }}
+                                </option>
+
+                                @endforeach
+
+                            </select>
+
+                            @if($suggested && !$placement)
+                            <div style="
                                             margin-top:5px;
                                             color:#166534;
                                             font-size:11px;
                                             font-weight:700;
                                         ">
-                                            Sistem önerisi:
-                                            Modül {{ $suggested->module_number }}
-                                        </div>
-                                    @endif
+                                Sistem önerisi:
+                                Modül {{ $suggested->module_number }}
+                            </div>
+                            @endif
 
-                                @else
+                            @else
 
-                                    <div class="subvalue">
-                                        Modül gerekmiyor.
-                                    </div>
-
-                                @endif
-
+                            <div class="subvalue">
+                                Modül gerekmiyor.
                             </div>
 
-                            <div>
-                                <div class="label">
-                                    DURUM
-                                </div>
-
-                                @if($placement)
-
-                                    @if((int) $placement->status === 2)
-
-                                        <span class="status status-placed">
-                                            Yerleştirildi
-                                        </span>
-
-                                    @elseif((int) $placement->status === 3)
-
-                                        <span class="status status-placed">
-                                            Kesinleşti
-                                        </span>
-
-                                    @else
-
-                                        <span class="status status-waiting">
-                                            Bekliyor
-                                        </span>
-
-                                    @endif
-
-                                @else
-
-                                    <span class="status status-waiting">
-                                        Yerleştirilmedi
-                                    </span>
-
-                                @endif
-
-                                <button
-                                    type="submit"
-                                    class="button button-primary"
-                                    style="margin-top:8px;width:100%;"
-                                >
-                                    {{ $placement ? 'Güncelle' : 'Yerleştir' }}
-                                </button>
-
-                            </div>
+                            @endif
 
                         </div>
 
-                        <div style="margin-top:12px;">
-
+                        <div>
                             <div class="label">
-                                NOT
+                                DURUM
                             </div>
 
-                            <textarea
-                                name="notes"
-                                placeholder="İsteğe bağlı not..."
-                            >{{ $placement?->notes }}</textarea>
+                            @if($placement)
+
+                            @if((int) $placement->status === 2)
+
+                            <span class="status status-placed">
+                                Yerleştirildi
+                            </span>
+
+                            @elseif((int) $placement->status === 3)
+
+                            <span class="status status-placed">
+                                Kesinleşti
+                            </span>
+
+                            @else
+
+                            <span class="status status-waiting">
+                                Bekliyor
+                            </span>
+
+                            @endif
+
+                            @else
+
+                            <span class="status status-waiting">
+                                Yerleştirilmedi
+                            </span>
+
+                            @endif
+
+                            <button
+                                type="submit"
+                                class="button button-primary"
+                                style="margin-top:8px;width:100%;">
+                                {{ $placement ? 'Güncelle' : 'Yerleştir' }}
+                            </button>
 
                         </div>
 
-                    </form>
+                    </div>
 
-                </div>
+                    <div style="margin-top:12px;">
+
+                        <div class="label">
+                            NOT
+                        </div>
+
+                        <textarea
+                            name="notes"
+                            placeholder="İsteğe bağlı not...">{{ $placement?->notes }}</textarea>
+
+                    </div>
+
+                </form>
+
+            </div>
 
             @endforeach
 
         </section>
 
-    @empty
+        @empty
 
         <div class="empty">
             Bu eğitim yılı için henüz öğrenci tercihi bulunmuyor.
         </div>
 
-    @endforelse
+        @endforelse
 
-    <div class="bottom-bar">
+        <div class="bottom-bar">
 
-        <div class="bottom-info">
-            <strong>{{ $placedRows }}</strong>
-            /
-            <strong>{{ $totalRows }}</strong>
-            tercih için yerleştirme yapıldı.
-            <br>
-            Kesinleştirme sonrası öğrenci geçmişleri oluşturulur.
-        </div>
+            <div class="bottom-info">
+                <strong>{{ $placedRows }}</strong>
+                /
+                <strong>{{ $totalRows }}</strong>
+                öğrenci-kategori yerleştirmesi tamamlandı.
+                <br>
+                Kesinleştirme sonrası öğrenci geçmişleri oluşturulur.
+            </div>
 
-        <form
-            method="POST"
-            action="{{ route(
+            <form
+                method="POST"
+                action="{{ route(
                 'admin.student-placements.confirm',
                 $academicYear
-            ) }}"
-        >
-            @csrf
+            ) }}">
+                @csrf
 
-            <button
-                type="submit"
-                class="confirm-button"
-                {{ $totalRows === 0 || $placedRows !== $totalRows ? 'disabled' : '' }}
-                onclick="
-                    return confirm(
-                        'Tüm yerleştirmeleri kesinleştirmek istediğinize emin misiniz? Bu işlem öğrenci geçmişlerini oluşturacaktır.'
-                    );
-                "
-            >
-                Yerleştirmeleri Kesinleştir
-            </button>
+                <button
+                    type="submit"
+                    class="confirm-button"
+                    {{ ! $confirmReady ? 'disabled' : '' }}
+                    onclick="
+        return confirm(
+            'Tüm nihai yerleştirmeleri kesinleştirmek istediğinize emin misiniz? Bu işlem öğrenci geçmişlerini oluşturacaktır.'
+        );
+    ">
+                    Yerleştirmeleri Kesinleştir
+                </button>
 
-        </form>
+            </form>
 
-    </div>
+        </div>
 
-</main>
+    </main>
 
 </body>
+
 </html>

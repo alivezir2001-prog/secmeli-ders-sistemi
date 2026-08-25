@@ -85,8 +85,8 @@ class PlacementService
          * İlk alınmamış modül.
          */
         return $modules->first(
-            fn (CourseModule $module) =>
-                ! $takenModuleIds->contains($module->id)
+            fn(CourseModule $module) =>
+            ! $takenModuleIds->contains($module->id)
         );
     }
 
@@ -103,9 +103,9 @@ class PlacementService
         $student = $selection->student;
 
         /*
-         * Manuel modül verilmemişse
-         * sistem önerisini kullan.
-         */
+     * Manuel modül verilmemişse
+     * sistem önerisini kullan.
+     */
         if ($moduleId === null) {
             $module = $this->suggestedModule(
                 $student,
@@ -117,54 +117,61 @@ class PlacementService
 
         $module = $moduleId
             ? CourseModule::query()
-                ->where('id', $moduleId)
-                ->where('active', true)
-                ->where(
-                    'course_id',
-                    $selection->course_id
+            ->where('id', $moduleId)
+            ->where('active', true)
+            ->where(
+                'course_id',
+                $selection->course_id
+            )
+            ->when(
+                $selection->course_module_group_id,
+                fn($query) =>
+                $query->where(
+                    'course_module_group_id',
+                    $selection->course_module_group_id
                 )
-                ->when(
-                    $selection->course_module_group_id,
-                    fn ($query) =>
-                        $query->where(
-                            'course_module_group_id',
-                            $selection->course_module_group_id
-                        )
-                )
-                ->firstOrFail()
+            )
+            ->firstOrFail()
             : null;
 
         return StudentCoursePlacement::updateOrCreate(
             [
                 'student_course_selection_id' =>
-                    $selection->id,
+                $selection->id,
             ],
             [
                 'student_id' =>
-                    $selection->student_id,
+                $selection->student_id,
 
                 'academic_year_id' =>
-                    $selection->academic_year_id,
+                $selection->academic_year_id,
 
                 'course_id' =>
-                    $selection->course_id,
+                $selection->course_id,
 
                 'course_module_group_id' =>
-                    $selection->course_module_group_id,
+                $selection->course_module_group_id,
 
                 'course_module_id' =>
-                    $module?->id,
+                $module?->id,
+
+                'course_grade_option_id' =>
+                $selection->course_grade_option_id,
 
                 'weekly_hours' =>
-                    $selection->weekly_hours,
+                $selection->weekly_hours,
 
-                'status' => 2,
+                'status' =>
+                2,
 
-                'placed_at' => now(),
+                'placed_at' =>
+                now(),
 
-                'confirmed_at' => null,
+                'confirmed_at' =>
+                null,
 
-                'notes' => $notes,
+                'notes' =>
+                $notes,
             ]
         );
     }

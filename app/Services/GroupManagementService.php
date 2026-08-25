@@ -27,6 +27,12 @@ class GroupManagementService
             $placement,
             $targetGroup
         ) {
+
+            if ((int) $placement->status === 3) {
+                throw new RuntimeException(
+                    'Kesinleştirilmiş bir öğrenci yerleşimi normal taşıma işlemiyle değiştirilemez.'
+                );
+            }
             $placement->load([
                 'student',
                 'selection.course.category',
@@ -96,9 +102,9 @@ class GroupManagementService
              */
             $selectionCategoryId =
                 $placement
-                    ->selection
-                    ?->course
-                    ?->course_category_id;
+                ->selection
+                ?->course
+                ?->course_category_id;
 
             if (
                 ! $selectionCategoryId
@@ -113,8 +119,8 @@ class GroupManagementService
              */
             $targetCategoryId =
                 $targetGroup
-                    ->course
-                    ?->course_category_id;
+                ->course
+                ?->course_category_id;
 
             if (
                 ! $targetCategoryId
@@ -143,17 +149,17 @@ class GroupManagementService
              */
             $targetCount =
                 $targetGroup
-                    ->placements()
-                    ->whereIn(
-                        'status',
-                        [1, 2, 3]
-                    )
-                    ->where(
-                        'id',
-                        '!=',
-                        $placement->id
-                    )
-                    ->count();
+                ->placements()
+                ->whereIn(
+                    'status',
+                    [1, 2, 3]
+                )
+                ->where(
+                    'id',
+                    '!=',
+                    $placement->id
+                )
+                ->count();
 
             if (
                 $targetGroup->maximum_students !== null
@@ -172,17 +178,17 @@ class GroupManagementService
              */
             $targetGradeOption =
                 $targetGroup
-                    ->course
-                    ?->gradeOptions()
-                    ->where(
-                        'active',
-                        true
-                    )
-                    ->where(
-                        'weekly_hours',
-                        $targetGroup->weekly_hours
-                    )
-                    ->first();
+                ->course
+                ?->gradeOptions()
+                ->where(
+                    'active',
+                    true
+                )
+                ->where(
+                    'weekly_hours',
+                    $targetGroup->weekly_hours
+                )
+                ->first();
 
             if (
                 ! $targetGradeOption
@@ -198,17 +204,17 @@ class GroupManagementService
              */
             $studentGrade =
                 $placement
-                    ->student
-                    ?->studentYears()
-                    ->where(
-                        'academic_year_id',
-                        $placement->academic_year_id
-                    )
-                    ->where(
-                        'active',
-                        true
-                    )
-                    ->value('grade');
+                ->student
+                ?->studentYears()
+                ->where(
+                    'academic_year_id',
+                    $placement->academic_year_id
+                )
+                ->where(
+                    'active',
+                    true
+                )
+                ->value('grade');
 
             if (
                 ! $studentGrade
@@ -232,34 +238,34 @@ class GroupManagementService
              */
             $placement->update([
                 'student_course_group_id' =>
-                    $targetGroup->id,
+                $targetGroup->id,
 
                 'course_id' =>
-                    $targetGroup->course_id,
+                $targetGroup->course_id,
 
                 'course_module_group_id' =>
-                    $targetGroup->course_module_group_id,
+                $targetGroup->course_module_group_id,
 
                 'course_module_id' =>
-                    $targetGroup->course_module_id,
+                $targetGroup->course_module_id,
 
                 'course_grade_option_id' =>
-                    $targetGradeOption->id,
+                $targetGradeOption->id,
 
                 'weekly_hours' =>
-                    $targetGroup->weekly_hours,
+                $targetGroup->weekly_hours,
 
                 'status' =>
-                    2,
+                2,
 
                 'placed_at' =>
-                    now(),
+                now(),
 
                 'confirmed_at' =>
-                    null,
+                null,
 
                 'notes' =>
-                    'Okul tarafından manuel olarak değiştirildi.',
+                'Okul tarafından manuel olarak değiştirildi.',
             ]);
 
             return $placement->fresh([
@@ -294,6 +300,18 @@ class GroupManagementService
                 'placements.selection.course',
             ]);
 
+            if ($group->confirmed_at !== null) {
+                throw new RuntimeException(
+                    'Kesinleştirilmiş grup kapatılamaz.'
+                );
+            }
+
+            if ($group->confirmed_at !== null) {
+                throw new RuntimeException(
+                    'Kesinleştirilmiş grup kapatılamaz.'
+                );
+            }
+
             if (
                 (int) $group->status === 4
             ) {
@@ -304,16 +322,16 @@ class GroupManagementService
 
             $placements =
                 $group->placements()
-                    ->with([
-                        'student',
-                        'selection.course',
-                    ])
-                    ->whereIn(
-                        'status',
-                        [1, 2]
-                    )
-                    ->lockForUpdate()
-                    ->get();
+                ->with([
+                    'student',
+                    'selection.course',
+                ])
+                ->whereIn(
+                    'status',
+                    [1, 2]
+                )
+                ->lockForUpdate()
+                ->get();
 
             if ($placements->isEmpty()) {
                 $group->update([
@@ -322,16 +340,16 @@ class GroupManagementService
 
                 return [
                     'group' =>
-                        $group->fresh(),
+                    $group->fresh(),
 
                     'moved' =>
-                        0,
+                    0,
 
                     'unmoved' =>
-                        [],
+                    [],
 
                     'success' =>
-                        true,
+                    true,
                 ];
             }
 
@@ -372,16 +390,16 @@ class GroupManagementService
 
             return [
                 'group' =>
-                    $group->fresh(),
+                $group->fresh(),
 
                 'moved' =>
-                    $moved,
+                $moved,
 
                 'unmoved' =>
-                    $unmoved,
+                $unmoved,
 
                 'success' =>
-                    empty($unmoved),
+                empty($unmoved),
             ];
         });
     }
@@ -418,25 +436,25 @@ class GroupManagementService
          */
         $second =
             $student
-                ->courseSelections()
-                ->with([
-                    'course.category',
-                    'course.gradeOptions',
-                    'moduleGroup',
-                ])
-                ->where(
-                    'academic_year_id',
-                    $placement->academic_year_id
-                )
-                ->where(
-                    'preference_order',
-                    2
-                )
-                ->where(
-                    'status',
-                    2
-                )
-                ->get();
+            ->courseSelections()
+            ->with([
+                'course.category',
+                'course.gradeOptions',
+                'moduleGroup',
+            ])
+            ->where(
+                'academic_year_id',
+                $placement->academic_year_id
+            )
+            ->where(
+                'preference_order',
+                2
+            )
+            ->where(
+                'status',
+                2
+            )
+            ->get();
 
         foreach ($second as $candidate) {
             $group =
@@ -455,25 +473,25 @@ class GroupManagementService
          */
         $third =
             $student
-                ->courseSelections()
-                ->with([
-                    'course.category',
-                    'course.gradeOptions',
-                    'moduleGroup',
-                ])
-                ->where(
-                    'academic_year_id',
-                    $placement->academic_year_id
-                )
-                ->where(
-                    'preference_order',
-                    3
-                )
-                ->where(
-                    'status',
-                    2
-                )
-                ->get();
+            ->courseSelections()
+            ->with([
+                'course.category',
+                'course.gradeOptions',
+                'moduleGroup',
+            ])
+            ->where(
+                'academic_year_id',
+                $placement->academic_year_id
+            )
+            ->where(
+                'preference_order',
+                3
+            )
+            ->where(
+                'status',
+                2
+            )
+            ->get();
 
         foreach ($third as $candidate) {
             $group =
@@ -508,8 +526,8 @@ class GroupManagementService
     ): ?StudentCourseGroup {
         $categoryId =
             $selection
-                ->course
-                ?->course_category_id;
+            ->course
+            ?->course_category_id;
 
         if (!$categoryId) {
             return null;
@@ -531,16 +549,16 @@ class GroupManagementService
          */
         $gradeOption =
             $selection
-                ->course
-                ->gradeOptions
-                ->where(
-                    'active',
-                    true
-                )
-                ->firstWhere(
-                    'weekly_hours',
-                    $weeklyHours
-                );
+            ->course
+            ->gradeOptions
+            ->where(
+                'active',
+                true
+            )
+            ->firstWhere(
+                'weekly_hours',
+                $weeklyHours
+            );
 
         if (!$gradeOption) {
             return null;
@@ -548,40 +566,40 @@ class GroupManagementService
 
         $groups =
             StudentCourseGroup::query()
-                ->with('course')
-                ->where(
-                    'academic_year_id',
-                    $placement->academic_year_id
-                )
-                ->where(
-                    'course_id',
-                    $selection->course_id
-                )
-                ->where(
-                    'weekly_hours',
-                    $weeklyHours
-                )
-                ->whereIn(
-                    'status',
-                    [1, 2]
-                )
-                ->where(
-                    'id',
-                    '!=',
-                    $placement->student_course_group_id
-                )
-                ->orderBy('group_number')
-                ->get();
+            ->with('course')
+            ->where(
+                'academic_year_id',
+                $placement->academic_year_id
+            )
+            ->where(
+                'course_id',
+                $selection->course_id
+            )
+            ->where(
+                'weekly_hours',
+                $weeklyHours
+            )
+            ->whereIn(
+                'status',
+                [1, 2]
+            )
+            ->where(
+                'id',
+                '!=',
+                $placement->student_course_group_id
+            )
+            ->orderBy('group_number')
+            ->get();
 
         foreach ($groups as $group) {
             $count =
                 $group
-                    ->placements()
-                    ->whereIn(
-                        'status',
-                        [1, 2, 3]
-                    )
-                    ->count();
+                ->placements()
+                ->whereIn(
+                    'status',
+                    [1, 2, 3]
+                )
+                ->count();
 
             if (
                 $group->maximum_students !== null
@@ -609,9 +627,9 @@ class GroupManagementService
     ): ?StudentCourseGroup {
         $categoryId =
             $placement
-                ->selection
-                ?->course
-                ?->course_category_id;
+            ->selection
+            ?->course
+            ?->course_category_id;
 
         if (!$categoryId) {
             return null;
@@ -622,77 +640,77 @@ class GroupManagementService
 
         $groups =
             StudentCourseGroup::query()
-                ->with('course')
-                ->where(
-                    'academic_year_id',
-                    $placement->academic_year_id
-                )
-                ->where(
-                    'id',
-                    '!=',
-                    $closedGroup->id
-                )
-                ->whereIn(
-                    'status',
-                    [1, 2]
-                )
-                ->where(
-                    'weekly_hours',
-                    $weeklyHours
-                )
-                ->whereHas(
-                    'course',
-                    function ($query) use (
+            ->with('course')
+            ->where(
+                'academic_year_id',
+                $placement->academic_year_id
+            )
+            ->where(
+                'id',
+                '!=',
+                $closedGroup->id
+            )
+            ->whereIn(
+                'status',
+                [1, 2]
+            )
+            ->where(
+                'weekly_hours',
+                $weeklyHours
+            )
+            ->whereHas(
+                'course',
+                function ($query) use (
+                    $categoryId
+                ) {
+                    $query->where(
+                        'course_category_id',
                         $categoryId
-                    ) {
-                        $query->where(
-                            'course_category_id',
-                            $categoryId
-                        );
-                    }
-                )
-                ->orderBy('group_number')
-                ->get();
+                    );
+                }
+            )
+            ->orderBy('group_number')
+            ->get();
 
         /*
          * En az dolu grubu tercih et.
          */
         $groups =
             $groups
-                ->filter(
-                    function (
-                        StudentCourseGroup $group
-                    ) {
-                        $count =
-                            $group
-                                ->placements()
-                                ->whereIn(
-                                    'status',
-                                    [1, 2, 3]
-                                )
-                                ->count();
+            ->filter(
+                function (
+                    StudentCourseGroup $group
+                ) {
+                    $count =
+                        $group
+                        ->placements()
+                        ->whereIn(
+                            'status',
+                            [1, 2, 3]
+                        )
+                        ->count();
 
-                        return
-                            $group->maximum_students === null
-                            ||
-                            $count <
-                            (int) $group->maximum_students;
-                    }
-                )
-                ->sortBy(
-                    function (
-                        StudentCourseGroup $group
-                    ) {
-                        return $group
-                            ->placements()
-                            ->whereIn(
-                                'status',
-                                [1, 2, 3]
-                            )
-                            ->count();
-                    }
-                )
-                ->values();
+                    return
+                        $group->maximum_students === null
+                        ||
+                        $count <
+                        (int) $group->maximum_students;
+                }
+            )
+            ->sortBy(
+                function (
+                    StudentCourseGroup $group
+                ) {
+                    return $group
+                        ->placements()
+                        ->whereIn(
+                            'status',
+                            [1, 2, 3]
+                        )
+                        ->count();
+                }
+            )
+            ->values();
 
         return $groups->first();
     }

@@ -81,12 +81,52 @@ class AdminStudentPlacementController extends Controller
             }
         );
 
+        $requiredPlacementCount =
+            $selections
+            ->where('preference_order', 1)
+            ->count();
+
+        $placedCategoryKeys =
+            $placements
+            ->filter(
+                fn($placement) =>
+                (int) $placement->status === 2
+            )
+            ->map(
+                function ($placement) {
+                    $categoryId =
+                        $placement
+                        ->selection
+                        ?->course
+                        ?->course_category_id
+                        ??
+                        $placement
+                        ->course
+                        ?->course_category_id;
+
+                    return
+                        $placement->student_id
+                        . ':'
+                        . $categoryId;
+                }
+            )
+            ->unique()
+            ->count();
+
+        $confirmReady =
+            $requiredPlacementCount > 0
+            &&
+            $placedCategoryKeys === $requiredPlacementCount;
+
         return view(
             'admin.student-placements.index',
             compact(
                 'academicYears',
                 'academicYear',
-                'rows'
+                'rows',
+                'confirmReady',
+                'requiredPlacementCount',
+                'placedCategoryKeys'
             )
         );
     }
@@ -133,8 +173,8 @@ class AdminStudentPlacementController extends Controller
         return back()->with(
             'success',
             "{$selection->student->first_name} " .
-            "{$selection->student->last_name} için " .
-            "{$selection->course->name} yerleştirmesi kaydedildi."
+                "{$selection->student->last_name} için " .
+                "{$selection->course->name} yerleştirmesi kaydedildi."
         );
     }
 
@@ -164,7 +204,10 @@ class AdminStudentPlacementController extends Controller
                     'academic_year_id',
                     $academicYear->id
                 )
-                ->where('status', 2)
+                ->where(
+                    'status',
+                    2
+                )
                 ->lockForUpdate()
                 ->get();
 
@@ -178,102 +221,222 @@ class AdminStudentPlacementController extends Controller
             foreach ($placements as $placement) {
 
                 /*
-                 * Kesin yerleştirme için modül zorunlu.
-                 */
+             * Kesinleştirme için gerçek yerleşimin
+             * temel alanları mutlaka dolu olmalı.
+             */
+                if (! $placement->course_id) {
+                    abort(
+                        422,
+                        "{$placement->student->first_name} " .
+                            "{$placement->student->last_name} için " .
+                            "yerleşim dersi belirlenmemiş."
+                    );
+                }
+
                 if (! $placement->course_module_id) {
                     abort(
                         422,
                         "{$placement->student->first_name} " .
-                        "{$placement->student->last_name} / " .
-                        "{$placement->course->name} için " .
-                        "modül belirlenmemiş."
+                            "{$placement->student->last_name} / " .
+                            "{$placement->course->name} için " .
+                            "modül belirlenmemiş."
+                    );
+                }
+
+                if (! $placement->student_course_group_id) {
+                    abort(
+                        422,
+                        "{$placement->student->first_name} " .
+                            "{$placement->student->last_name} / " .
+                            "{$placement->course->name} için grup belirlenmemiş."
+                    );
+                }
+
+                if (! $placement->course_grade_option_id) {
+                    abort(
+                        422,
+                        "{$placement->student->first_name} " .
+                            "{$placement->student->last_name} / " .
+                            "{$placement->course->name} için " .
+                            "ders saati seçeneği belirlenmemiş."
+                    );
+                }
+
+                if ($placement->weekly_hours === null) {
+                    abort(
+                        422,
+                        "{$placement->student->first_name} " .
+                            "{$placement->student->last_name} / " .
+                            "{$placement->course->name} için " .
+                            "haftalık ders saati belirlenmemiş."
                     );
                 }
 
                 /*
-                 * Aynı yerleştirme daha önce history'ye
-                 * aktarılmışsa tekrar oluşturma.
-                 */
-                $historyExists =
-                    \App\Models\StudentCourseHistory::query()
-                        ->where(
-                            'student_id',
-                            $placement->student_id
-                        )
-                        ->where(
-                            'academic_year_id',
-                            $placement->academic_year_id
-                        )
-                        ->where(
-                            'course_id',
-                            $placement->course_id
-                        )
-                        ->where(
-                            'course_module_id',
-                            $placement->course_module_id
-                        )
-                        ->exists();
+             * History'deki sınıf bilgisi placement'ın
+             * gerçek course_grade_option_id'sinden alınır.
+             *
+             * Burada artık selection->gradeOption kullanılmaz.
+             */
+                $gradeOption =
+                    \App\Models\CourseGradeOption::query()
+                    ->where(
+                        'id',
+                        $placement->course_grade_option_id
+                    )
+                    ->where(
+                        'course_id',
+                        $placement->course_id
+                    )
+                    ->first();
 
-                if ($historyExists) {
-                    continue;
+                if (! $gradeOption) {
+                    abort(
+                        422,
+                        "{$placement->student->first_name} " .
+                            "{$placement->student->last_name} / " .
+                            "{$placement->course->name} için " .
+                            "geçerli ders saati seçeneği bulunamadı."
+                    );
                 }
 
-                $grade =
-                    $placement->selection
-                        ?->gradeOption
-                        ?->grade;
+                /*
+             * Aynı öğrencinin bu eğitim yılında aynı
+             * gerçek ders + modül geçmişi zaten varsa
+             * ikinci kez history oluşturma.
+             */
+                $history =
+                    \App\Models\StudentCourseHistory::query()
+                    ->where(
+                        'student_id',
+                        $placement->student_id
+                    )
+                    ->where(
+                        'academic_year_id',
+                        $placement->academic_year_id
+                    )
+                    ->where(
+                        'course_id',
+                        $placement->course_id
+                    )
+                    ->where(
+                        'course_module_id',
+                        $placement->course_module_id
+                    )
+                    ->first();
 
-                \App\Models\StudentCourseHistory::create([
-                    'student_id' =>
-                        $placement->student_id,
-
-                    'academic_year_id' =>
-                        $placement->academic_year_id,
-
-                    'course_id' =>
-                        $placement->course_id,
-
-                    'course_module_id' =>
-                        $placement->course_module_id,
-
-                    'course_grade_option_id' =>
-                        $placement->course_grade_option_id,
-
-                    'grade' =>
-                        $placement
-                            ->selection
-                            ?->gradeOption
-                            ?->grade,
-
-                    'weekly_hours' =>
-                        $placement->weekly_hours,
+                if ($history) {
 
                     /*
-                     * Kesinleşmiş geçmiş.
-                     *
-                     * Mevcut history status yapısını
-                     * koruyoruz.
-                     */
-                    'status' => 2,
+                 * Aynı yerleşimin tekrar kesinleştirilmesi
+                 * durumunda mevcut history'yi güncelle.
+                 *
+                 * Böylece duplicate history oluşmaz.
+                 */
+                    $history->update([
+                        'course_grade_option_id' =>
+                        $placement
+                            ->course_grade_option_id,
 
-                    'notes' =>
+                        'grade' =>
+                        $gradeOption->grade,
+
+                        'weekly_hours' =>
+                        $placement->weekly_hours,
+
+                        'status' =>
+                        2,
+
+                        'notes' =>
                         $placement->notes,
-                ]);
+                    ]);
+                } else {
 
+                    \App\Models\StudentCourseHistory::create([
+                        'student_id' =>
+                        $placement->student_id,
+
+                        'academic_year_id' =>
+                        $placement->academic_year_id,
+
+                        'course_id' =>
+                        $placement->course_id,
+
+                        'course_module_id' =>
+                        $placement->course_module_id,
+
+                        'course_grade_option_id' =>
+                        $placement
+                            ->course_grade_option_id,
+
+                        'grade' =>
+                        $gradeOption->grade,
+
+                        'weekly_hours' =>
+                        $placement->weekly_hours,
+
+                        'status' =>
+                        2,
+
+                        'notes' =>
+                        $placement->notes,
+                    ]);
+                }
+
+                /*
+             * Placement artık kesinleşmiş.
+             */
                 $placement->update([
-                    'status' => 3,
-                    'confirmed_at' => now(),
+                    'status' =>
+                    3,
+
+                    'confirmed_at' =>
+                    now(),
                 ]);
 
                 /*
-                 * Öğrencinin tercihini de kesinleşmiş kabul et.
-                 */
+             * Placement hangi selection'dan geldiyse
+             * onu da kesinleşmiş kabul ediyoruz.
+             */
                 if ($placement->selection) {
                     $placement->selection->update([
-                        'status' => 3,
+                        'status' =>
+                        3,
                     ]);
                 }
             }
+
+            /*
+         * Kesinleşmiş gruplar artık aktif/kesinleşmiş
+         * durumda tutulur.
+         *
+         * Öğrencisi olmayan taslak gruplara dokunmuyoruz.
+         */
+            \App\Models\StudentCourseGroup::query()
+                ->where(
+                    'academic_year_id',
+                    $academicYear->id
+                )
+                ->whereIn(
+                    'status',
+                    [1, 2]
+                )
+                ->whereHas(
+                    'placements',
+                    function ($query) {
+                        $query->where(
+                            'status',
+                            3
+                        );
+                    }
+                )
+                ->update([
+                    'status' =>
+                    2,
+
+                    'confirmed_at' =>
+                    now(),
+                ]);
         });
 
         return back()->with(
