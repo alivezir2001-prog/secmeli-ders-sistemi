@@ -155,6 +155,30 @@ Route::post(
 )->name('admin.student-placements.confirm');
 
 Route::get(
+    '/yonetim/manuel-yerlestirme',
+    [
+        AdminStudentCourseGroupController::class,
+        'manualPlacement',
+    ]
+)
+    ->middleware('admin')
+    ->name(
+        'admin.student-course-groups.manual-placement'
+    );
+
+Route::post(
+    '/yonetim/manuel-yerlestirme/{selection}',
+    [
+        AdminStudentCourseGroupController::class,
+        'manualPlace',
+    ]
+)
+    ->middleware('admin')
+    ->name(
+        'admin.student-course-groups.manual-place'
+    );
+
+Route::get(
     '/yonetim/ogrenci-gruplari',
     [AdminStudentCourseGroupController::class, 'index']
 )->name('admin.student-course-groups.index');

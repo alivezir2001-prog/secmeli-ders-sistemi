@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -90,7 +91,7 @@
             border-radius: 14px;
             padding: 18px;
             margin-bottom: 22px;
-            box-shadow: 0 4px 15px rgba(15,23,42,.05);
+            box-shadow: 0 4px 15px rgba(15, 23, 42, .05);
         }
 
         .generate-grid {
@@ -161,7 +162,7 @@
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(6, minmax(0,1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 10px;
         }
 
@@ -209,7 +210,7 @@
             background: white;
             border-radius: 14px;
             margin-bottom: 16px;
-            box-shadow: 0 4px 15px rgba(15,23,42,.05);
+            box-shadow: 0 4px 15px rgba(15, 23, 42, .05);
             overflow: hidden;
         }
 
@@ -316,7 +317,7 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0,1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 12px;
             margin-bottom: 16px;
         }
@@ -341,7 +342,7 @@
 
         .student-list {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0,1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
         }
 
@@ -416,7 +417,7 @@
         .modal-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(15,23,42,.55);
+            background: rgba(15, 23, 42, .55);
             display: none;
             align-items: center;
             justify-content: center;
@@ -433,7 +434,7 @@
             max-width: 520px;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 20px 50px rgba(15,23,42,.25);
+            box-shadow: 0 20px 50px rgba(15, 23, 42, .25);
             padding: 22px;
         }
 
@@ -456,11 +457,11 @@
 
         @media (max-width: 1100px) {
             .summary-grid {
-                grid-template-columns: repeat(3, minmax(0,1fr));
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
             .stats {
-                grid-template-columns: repeat(3, minmax(0,1fr));
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
             .student-list {
@@ -469,6 +470,7 @@
         }
 
         @media (max-width: 900px) {
+
             .generate-grid,
             .actions {
                 grid-template-columns: 1fr;
@@ -487,6 +489,7 @@
         }
 
         @media (max-width: 650px) {
+
             .summary-grid,
             .stats {
                 grid-template-columns: 1fr 1fr;
@@ -497,454 +500,480 @@
 
 <body>
 
-<header class="header">
-    <h1>Seçmeli Ders Grupları</h1>
-    <p>{{ $academicYear->name }} eğitim öğretim yılı</p>
-</header>
+    <header class="header">
+        <h1>Seçmeli Ders Grupları</h1>
+        <p>{{ $academicYear->name }} Eğitim ve Öğretim Yılı</p>
+    </header>
 
-<main class="container">
+    <main class="container">
 
-    @if(session('success'))
+        @php
+        $hasGroups = $groups->isNotEmpty();
+        @endphp
+
+        @if(session('success'))
         <div class="success">
             {{ session('success') }}
         </div>
-    @endif
+        @endif
 
-    @if($errors->any())
+        @if($errors->any())
         <div class="error">
             @foreach($errors->all() as $error)
-                <div>{{ $error }}</div>
+            <div>{{ $error }}</div>
             @endforeach
         </div>
-    @endif
+        @endif
 
-    <div class="topbar">
+        <div class="topbar">
 
-        <div class="title-block">
-            <h2>Grup Yönetimi</h2>
+            <div class="title-block">
+                <h2>Grup Yönetimi</h2>
 
-            <p>
-                Otomatik oluşan grupları inceleyin,
-                öğrencileri gerektiğinde taşıyın ve
-                grupları yeniden dağıtın.
-            </p>
-        </div>
+                <p>
+                    Otomatik oluşan grupları inceleyin,
+                    öğrencileri gerektiğinde taşıyın ve
+                    grupları yeniden dağıtın.
+                </p>
+            </div>
 
-        <form method="GET">
-            <select
-                name="academic_year_id"
-                onchange="this.form.submit()"
-            >
-                @foreach($academicYears as $year)
+            <form method="GET">
+                <select
+                    name="academic_year_id"
+                    onchange="this.form.submit()">
+                    @foreach($academicYears as $year)
                     <option
                         value="{{ $year->id }}"
-                        {{ (int) $year->id === (int) $academicYear->id ? 'selected' : '' }}
-                    >
+                        {{ (int) $year->id === (int) $academicYear->id ? 'selected' : '' }}>
                         {{ $year->name }}
                         {{ $year->active ? ' (Aktif)' : '' }}
                     </option>
-                @endforeach
-            </select>
-        </form>
+                    @endforeach
+                </select>
+            </form>
 
-    </div>
+        </div>
 
-    <section class="generate-panel">
+        <section class="generate-panel">
 
-        <form
-            method="POST"
-            action="{{ route('admin.student-course-groups.generate') }}"
-        >
-            @csrf
+            <form
+                method="POST"
+                action="{{ route('admin.student-course-groups.generate') }}">
+                @csrf
 
-            <input
-                type="hidden"
-                name="academic_year_id"
-                value="{{ $academicYear->id }}"
-            >
+                <input
+                    type="hidden"
+                    name="academic_year_id"
+                    value="{{ $academicYear->id }}">
 
-            <div class="generate-grid">
+                <div class="generate-grid">
 
-                <div class="field">
-                    <label>MAKSİMUM GRUP MEVCUDU</label>
+                    <div class="field">
+                        <label>MAKSİMUM GRUP MEVCUDU</label>
 
-                    <input
-                        type="number"
-                        name="maximum_students_per_group"
-                        min="10"
-                        max="100"
-                        value="{{ old('maximum_students_per_group', 20) }}"
-                    >
-                </div>
+                        <input
+                            type="number"
+                            name="maximum_students_per_group"
+                            min="10"
+                            max="100"
+                            value="{{ old('maximum_students_per_group', 20) }}"
+                            {{ $hasGroups ? 'disabled' : '' }}>
+                    </div>
 
-                <div class="field">
-                    <label>EĞİTİM YILI</label>
+                    <div class="field">
+                        <label>EĞİTİM YILI</label>
 
-                    <div style="
+                        <div style="
                         padding:10px;
                         background:#f8fafc;
                         border:1px solid #e2e8f0;
                         border-radius:8px;
                         font-weight:700;
                     ">
-                        {{ $academicYear->name }}
+                            {{ $academicYear->name }}
+                        </div>
                     </div>
+
+                    <div style="text-align:right;">
+                        @if($hasGroups)
+
+                        <button
+                            type="button"
+                            class="button button-secondary"
+                            disabled
+                            style="opacity:.7;cursor:not-allowed;">
+                            Gruplar Oluşturuldu
+                        </button>
+
+                        @else
+
+                        <button
+                            type="submit"
+                            class="button button-primary"
+                            onclick="
+            return confirm(
+                'Bu eğitim yılı için otomatik öğrenci grupları oluşturulacak. Devam etmek istiyor musunuz?'
+            );
+        ">
+                            Grupları Oluştur
+                        </button>
+
+                        @endif
+                    </div>
+
                 </div>
+            </form>
 
-                <div style="text-align:right;">
-                    <button
-                        type="submit"
-                        class="button button-primary"
-                    >
-                        Grupları Oluştur / Yenile
-                    </button>
-                </div>
-
-            </div>
-        </form>
-
-        <div style="
+            <div style="
             margin-top:10px;
             color:#64748b;
             font-size:12px;
         ">
-            Sistem gönderilmiş öğrenci tercihlerini analiz eder.
-            Yeni grup oluşturulabilmesi için en az
-            <strong>10 öğrenci</strong> gerekir.
-        </div>
+                Sistem gönderilmiş öğrenci tercihlerini analiz eder.
+                Yeni grup oluşturulabilmesi için en az
+                <strong>10 öğrenci</strong> gerekir.
+            </div>
 
-    </section>
+        </section>
 
-    @php
+        @php
         $activeGroups =
-            $groups->whereIn('status', [1,2]);
+        $groups->whereIn('status', [1,2]);
 
         $allPlacements =
-            $groups->flatMap(
-                fn ($group) =>
-                    $group->placements
-            );
+        $groups->flatMap(
+        fn ($group) =>
+        $group->placements
+        );
 
         $totalStudents =
-            $allPlacements
-                ->whereIn('status', [1,2,3])
-                ->pluck('student_id')
-                ->unique()
-                ->count();
+        $allPlacements
+        ->whereIn('status', [1,2,3])
+        ->pluck('student_id')
+        ->unique()
+        ->count();
 
         $autoAlternativeCount =
-            $allPlacements
-                ->whereIn('status', [1,2,3])
-                ->filter(function ($placement) {
-                    return str_contains(
-                        (string) $placement->notes,
-                        'otomatik'
-                    );
-                })
-                ->count();
+        $allPlacements
+        ->whereIn('status', [1,2,3])
+        ->filter(function ($placement) {
+        return str_contains(
+        (string) $placement->notes,
+        'otomatik'
+        );
+        })
+        ->count();
 
         $minimumProblemGroups =
-            $activeGroups
-                ->filter(function ($group) {
-                    $count =
-                        $group->placements
-                            ->whereIn('status', [1,2,3])
-                            ->count();
+        $activeGroups
+        ->filter(function ($group) {
+        $count =
+        $group->placements
+        ->whereIn('status', [1,2,3])
+        ->count();
 
-                    return
-                        $count < (int) $group->minimum_students;
-                })
-                ->count();
+        return
+        $count < (int) $group->minimum_students;
+            })
+            ->count();
 
-        $closedGroups =
+            $closedGroups =
             $groups
-                ->where('status', 4)
-                ->count();
-    @endphp
+            ->where('status', 4)
+            ->count();
+            @endphp
 
-    <section class="summary-panel">
+            <section class="summary-panel">
 
-        <div class="summary-grid">
+                <div class="summary-grid">
 
-            <div class="summary-item">
-                <div class="summary-label">
-                    AKTİF GRUP
-                </div>
-
-                <div class="summary-value">
-                    {{ $activeGroups->count() }}
-                </div>
-            </div>
-
-            <div class="summary-item">
-                <div class="summary-label">
-                    YERLEŞEN ÖĞRENCİ
-                </div>
-
-                <div class="summary-value">
-                    {{ $totalStudents }}
-                </div>
-            </div>
-
-            <div class="summary-item">
-                <div class="summary-label">
-                    OTOMATİK ALTERNATİF
-                </div>
-
-                <div class="summary-value">
-                    {{ $autoAlternativeCount }}
-                </div>
-            </div>
-
-            <div class="summary-item">
-                <div class="summary-label">
-                    MİNİMUM ALTI GRUP
-                </div>
-
-                <div class="summary-value">
-                    {{ $minimumProblemGroups }}
-                </div>
-            </div>
-
-            <div class="summary-item">
-                <div class="summary-label">
-                    KAPALI GRUP
-                </div>
-
-                <div class="summary-value">
-                    {{ $closedGroups }}
-                </div>
-            </div>
-
-            <div class="summary-item">
-                <div class="summary-label">
-                    KONTROL
-                </div>
-
-                <div class="summary-value">
-                    {{ $unresolvedCount ?? 0 }}
-                </div>
-            </div>
-
-        </div>
-
-    </section>
-
-    @php
-        $groupsByCourse =
-            $groups->groupBy(
-                fn ($group) =>
-                    $group->course?->name ?? 'Ders'
-            );
-    @endphp
-
-    @forelse($groupsByCourse as $courseName => $courseGroups)
-
-        <section class="course-block">
-
-            <div class="course-heading">
-
-                <h3>
-                    {{ $courseName }}
-                </h3>
-
-                <span>
-                    {{ $courseGroups->count() }} grup
-                </span>
-
-            </div>
-
-            @foreach($courseGroups as $group)
-
-                @php
-                    $placements =
-                        $group->placements
-                            ->whereIn('status', [1,2,3])
-                            ->sortBy(
-                                fn ($placement) =>
-                                    $placement->student?->first_name
-                            );
-
-                    $studentCount =
-                        $placements->count();
-
-                    $minimum =
-                        (int) $group->minimum_students;
-
-                    $maximum =
-                        $group->maximum_students;
-
-                    $belowMinimum =
-                        $studentCount < $minimum;
-
-                    $full =
-                        $maximum !== null
-                        &&
-                        $studentCount >= $maximum;
-
-                    $status =
-                        (int) $group->status;
-                @endphp
-
-                <article
-                    class="group-block {{ $status === 4 ? 'closed' : '' }}"
-                >
-
-                    <div class="group-header">
-
-                        <div>
-
-                            <div class="group-title">
-                                Grup {{ $group->group_number }}
-                            </div>
-
-                            <div class="group-meta">
-
-                                @if($group->moduleGroup)
-                                    {{ $group->moduleGroup->name }}
-                                    ·
-                                @endif
-
-                                @if($group->module)
-                                    Modül {{ $group->module->module_number }}
-                                    ·
-                                @endif
-
-                                {{ $group->weekly_hours }} saat
-
-                            </div>
-
+                    <div class="summary-item">
+                        <div class="summary-label">
+                            AKTİF GRUP
                         </div>
 
-                        <div class="group-status">
+                        <div class="summary-value">
+                            {{ $activeGroups->count() }}
+                        </div>
+                    </div>
 
-                            @if($status === 1)
+                    <div class="summary-item">
+                        <div class="summary-label">
+                            YERLEŞEN ÖĞRENCİ
+                        </div>
+
+                        <div class="summary-value">
+                            {{ $totalStudents }}
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-label">
+                            OTOMATİK ALTERNATİF
+                        </div>
+
+                        <div class="summary-value">
+                            {{ $autoAlternativeCount }}
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-label">
+                            MİNİMUM ALTI GRUP
+                        </div>
+
+                        <div class="summary-value">
+                            {{ $minimumProblemGroups }}
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-label">
+                            KAPALI GRUP
+                        </div>
+
+                        <div class="summary-value">
+                            {{ $closedGroups }}
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-label">
+                            KONTROL
+                        </div>
+
+                        <div class="summary-value">
+                            {{ $unresolvedCount ?? 0 }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+            @php
+            $groupsByCourse =
+            $groups->groupBy(
+            fn ($group) =>
+            $group->course?->name ?? 'Ders'
+            );
+            @endphp
+
+            @forelse($groupsByCourse as $courseName => $courseGroups)
+
+            <section class="course-block">
+
+                <div class="course-heading">
+
+                    <h3>
+                        {{ $courseName }}
+                    </h3>
+
+                    <span>
+                        {{ $courseGroups->count() }} grup
+                    </span>
+
+                </div>
+
+                @foreach($courseGroups as $group)
+
+                @php
+                $placements =
+                $group->placements
+                ->whereIn('status', [1,2,3])
+                ->sortBy(
+                fn ($placement) =>
+                $placement->student?->first_name
+                );
+
+                $studentCount =
+                $placements->count();
+
+                $minimum =
+                (int) $group->minimum_students;
+
+                $maximum =
+                $group->maximum_students;
+
+                $belowMinimum =
+                $studentCount < $minimum;
+
+                    $full=$maximum !==null
+                    &&
+                    $studentCount>= $maximum;
+
+                    $status =
+                    (int) $group->status;
+
+                    $confirmed =
+                    $group->confirmed_at !== null;
+                    @endphp
+
+                    <article
+                        class="group-block {{ $status === 4 ? 'closed' : '' }}">
+
+                        <div class="group-header">
+
+                            <div>
+
+                                <div class="group-title">
+                                    Grup {{ $group->group_number }}
+                                </div>
+
+                                <div class="group-meta">
+
+                                    @if($group->moduleGroup)
+                                    {{ $group->moduleGroup->name }}
+                                    ·
+                                    @endif
+
+                                    @if($group->module)
+                                    Modül {{ $group->module->module_number }}
+                                    ·
+                                    @endif
+
+                                    {{ $group->weekly_hours }} saat
+
+                                </div>
+
+                            </div>
+
+                            <div class="group-status">
+
+                                @if($status === 1)
 
                                 <span class="badge badge-draft">
                                     Taslak
                                 </span>
 
-                            @elseif($status === 2)
+                                @elseif($status === 2)
 
                                 <span class="badge badge-active">
                                     Aktif
                                 </span>
 
-                            @elseif($status === 4)
+                                @elseif($status === 4)
 
                                 <span class="badge badge-closed">
                                     Kapalı
                                 </span>
 
-                            @endif
+                                @endif
 
-                            @if($belowMinimum)
+                                @if($belowMinimum)
 
                                 <span class="badge badge-warning">
                                     Minimum altı
                                 </span>
 
-                            @else
+                                @else
 
                                 <span class="badge badge-ok">
                                     Minimum sağlandı
                                 </span>
 
-                            @endif
+                                @endif
+                                @if($confirmed)
+
+                                <span class="badge badge-closed">
+                                    🔒 Kesinleştirildi
+                                </span>
+
+                                @endif
+
+                            </div>
 
                         </div>
 
-                    </div>
+                        <div class="group-body">
 
-                    <div class="group-body">
+                            <div class="stats">
 
-                        <div class="stats">
+                                <div class="stat">
+                                    <div class="stat-label">
+                                        ÖĞRENCİ
+                                    </div>
 
-                            <div class="stat">
-                                <div class="stat-label">
-                                    ÖĞRENCİ
+                                    <div class="stat-value">
+                                        {{ $studentCount }}
+                                    </div>
                                 </div>
 
-                                <div class="stat-value">
-                                    {{ $studentCount }}
-                                </div>
-                            </div>
+                                <div class="stat">
+                                    <div class="stat-label">
+                                        MİNİMUM
+                                    </div>
 
-                            <div class="stat">
-                                <div class="stat-label">
-                                    MİNİMUM
-                                </div>
-
-                                <div class="stat-value">
-                                    {{ $minimum }}
-                                </div>
-                            </div>
-
-                            <div class="stat">
-                                <div class="stat-label">
-                                    MAKSİMUM
+                                    <div class="stat-value">
+                                        {{ $minimum }}
+                                    </div>
                                 </div>
 
-                                <div class="stat-value">
-                                    {{ $maximum ?? '—' }}
+                                <div class="stat">
+                                    <div class="stat-label">
+                                        MAKSİMUM
+                                    </div>
+
+                                    <div class="stat-value">
+                                        {{ $maximum ?? '—' }}
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="stat">
-                                <div class="stat-label">
-                                    DURUM
-                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">
+                                        DURUM
+                                    </div>
 
-                                <div class="stat-value">
+                                    <div class="stat-value">
 
-                                    @if($full)
+                                        @if($full)
                                         Dolu
-                                    @elseif($belowMinimum)
+                                        @elseif($belowMinimum)
                                         Eksik
-                                    @else
+                                        @else
                                         Açılabilir
-                                    @endif
+                                        @endif
 
+                                    </div>
                                 </div>
+
+                                <div class="stat">
+                                    <div class="stat-label">
+                                        OLUŞTURMA
+                                    </div>
+
+                                    <div class="stat-value">
+                                        {{ $group->auto_created ? 'Otomatik' : 'Manuel' }}
+                                    </div>
+                                </div>
+
                             </div>
 
-                            <div class="stat">
-                                <div class="stat-label">
-                                    OLUŞTURMA
-                                </div>
+                            <div class="student-list">
 
-                                <div class="stat-value">
-                                    {{ $group->auto_created ? 'Otomatik' : 'Manuel' }}
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="student-list">
-
-                            @forelse($placements as $placement)
+                                @forelse($placements as $placement)
 
                                 @php
-                                    $selection =
-                                        $placement->selection;
+                                $selection =
+                                $placement->selection;
 
-                                    $preferenceOrder =
-                                        $selection?->preference_order;
+                                $preferenceOrder =
+                                $selection?->preference_order;
 
-                                    $notes =
-                                        (string) $placement->notes;
+                                $notes =
+                                (string) $placement->notes;
 
-                                    $isFallback =
-                                        str_contains(
-                                            $notes,
-                                            'aynı kategori'
-                                        );
+                                $isFallback =
+                                str_contains(
+                                $notes,
+                                'aynı kategori'
+                                );
 
-                                    $isAutomatic =
-                                        str_contains(
-                                            $notes,
-                                            'otomatik'
-                                        );
+                                $isAutomatic =
+                                str_contains(
+                                $notes,
+                                'otomatik'
+                                );
                                 @endphp
 
                                 <div class="student">
@@ -968,58 +997,58 @@
 
                                                 @if($preferenceOrder === 1)
 
-                                                    <span class="badge badge-primary-pref">
-                                                        1. tercih
-                                                    </span>
+                                                <span class="badge badge-primary-pref">
+                                                    1. tercih
+                                                </span>
 
                                                 @elseif($preferenceOrder === 2)
 
-                                                    <span class="badge badge-pref2">
-                                                        2. tercih
-                                                    </span>
+                                                <span class="badge badge-pref2">
+                                                    2. tercih
+                                                </span>
 
                                                 @elseif($preferenceOrder === 3)
 
-                                                    <span class="badge badge-pref3">
-                                                        3. tercih
-                                                    </span>
+                                                <span class="badge badge-pref3">
+                                                    3. tercih
+                                                </span>
 
                                                 @endif
 
                                                 @if($isFallback)
 
-                                                    <span class="badge badge-fallback">
-                                                        Otomatik alternatif
-                                                    </span>
+                                                <span class="badge badge-fallback">
+                                                    Otomatik alternatif
+                                                </span>
 
                                                 @elseif(
-                                                    str_contains(
-                                                        $notes,
-                                                            'manuel olarak değiştirildi'
-                                                    )
+                                                str_contains(
+                                                $notes,
+                                                'manuel olarak değiştirildi'
+                                                )
                                                 )
 
-                                                    <span class="badge badge-manual">
-                                                        Manuel değiştirildi
-                                                    </span>
+                                                <span class="badge badge-manual">
+                                                    Manuel değiştirildi
+                                                </span>
 
                                                 @elseif($preferenceOrder === 2)
 
-                                                    <span class="badge badge-auto">
-                                                        2. tercihten
-                                                    </span>
+                                                <span class="badge badge-auto">
+                                                    2. tercihten
+                                                </span>
 
                                                 @elseif($preferenceOrder === 3)
 
-                                                    <span class="badge badge-auto">
-                                                        3. tercihten
-                                                    </span>
+                                                <span class="badge badge-auto">
+                                                    3. tercihten
+                                                </span>
 
                                                 @else
 
-                                                    <span class="badge badge-primary-pref">
-                                                        1. tercihten
-                                                    </span>
+                                                <span class="badge badge-primary-pref">
+                                                    1. tercihten
+                                                </span>
 
                                                 @endif
 
@@ -1027,15 +1056,20 @@
 
                                         </div>
 
-                                        @if($status !== 4)
+                                        @if($status !== 4 && (int) $placement->status !== 3)
 
-                                            <button
-                                                type="button"
-                                                class="button button-secondary button-small"
-                                                onclick="toggleMoveBox({{ $placement->id }})"
-                                            >
-                                                Taşı
-                                            </button>
+                                        <button
+                                            type="button"
+                                            class="button button-secondary button-small"
+                                            onclick="toggleMoveBox({{ $placement->id }})">
+                                            Taşı
+                                        </button>
+
+                                        @elseif((int) $placement->status === 3)
+
+                                        <span class="badge badge-closed">
+                                            🔒 Kesinleşmiş
+                                        </span>
 
                                         @endif
 
@@ -1043,31 +1077,29 @@
 
                                     @if($isFallback)
 
-                                        <div style="
+                                    <div style="
                                             margin-top:7px;
                                             color:#c2410c;
                                             font-size:11px;
                                         ">
-                                            İlk üç tercihte uygun grup oluşmadığı
-                                            için aynı kategorideki mevcut gruba
-                                            otomatik aktarıldı.
-                                        </div>
+                                        İlk üç tercihte uygun grup oluşmadığı
+                                        için aynı kategorideki mevcut gruba
+                                        otomatik aktarıldı.
+                                    </div>
 
                                     @endif
 
                                     <div
                                         class="move-box"
                                         id="move-box-{{ $placement->id }}"
-                                        style="display:none;"
-                                    >
+                                        style="display:none;">
 
                                         <form
                                             method="POST"
                                             action="{{ route(
                                                 'admin.student-course-groups.move-student',
                                                 $placement
-                                            ) }}"
-                                        >
+                                            ) }}">
                                             @csrf
 
                                             <div class="field">
@@ -1078,8 +1110,7 @@
 
                                                 <select
                                                     name="target_group_id"
-                                                    required
-                                                >
+                                                    required>
 
                                                     <option value="">
                                                         Uygun grup seçiniz
@@ -1087,36 +1118,35 @@
 
                                                     @foreach($activeGroups as $targetGroup)
 
-                                                        @if($targetGroup->id !== $group->id)
+                                                    @if($targetGroup->id !== $group->id)
 
-                                                            @php
-                                                                $targetCount =
-                                                                    $targetGroup
-                                                                        ->placements
-                                                                        ->whereIn(
-                                                                            'status',
-                                                                            [1,2,3]
-                                                                        )
-                                                                        ->count();
-                                                            @endphp
+                                                    @php
+                                                    $targetCount =
+                                                    $targetGroup
+                                                    ->placements
+                                                    ->whereIn(
+                                                    'status',
+                                                    [1,2,3]
+                                                    )
+                                                    ->count();
+                                                    @endphp
 
-                                                            <option
-                                                                value="{{ $targetGroup->id }}"
-                                                                {{ $targetCount >= ($targetGroup->maximum_students ?? PHP_INT_MAX) ? 'disabled' : '' }}
-                                                            >
-                                                                {{ $targetGroup->course?->name }}
-                                                                -
-                                                                Grup {{ $targetGroup->group_number }}
-                                                                -
-                                                                {{ $targetGroup->weekly_hours }} saat
-                                                                @if($targetGroup->moduleGroup)
-                                                                    -
-                                                                    {{ $targetGroup->moduleGroup->name }}
-                                                                @endif
-                                                                ({{ $targetCount }}/{{ $targetGroup->maximum_students ?? '∞' }})
-                                                            </option>
-
+                                                    <option
+                                                        value="{{ $targetGroup->id }}"
+                                                        {{ $targetCount >= ($targetGroup->maximum_students ?? PHP_INT_MAX) ? 'disabled' : '' }}>
+                                                        {{ $targetGroup->course?->name }}
+                                                        -
+                                                        Grup {{ $targetGroup->group_number }}
+                                                        -
+                                                        {{ $targetGroup->weekly_hours }} saat
+                                                        @if($targetGroup->moduleGroup)
+                                                        -
+                                                        {{ $targetGroup->moduleGroup->name }}
                                                         @endif
+                                                        ({{ $targetCount }}/{{ $targetGroup->maximum_students ?? '∞' }})
+                                                    </option>
+
+                                                    @endif
 
                                                     @endforeach
 
@@ -1127,8 +1157,7 @@
                                             <button
                                                 type="submit"
                                                 class="button button-primary button-small"
-                                                style="margin-top:7px;"
-                                            >
+                                                style="margin-top:7px;">
                                                 Öğrenciyi Taşı
                                             </button>
 
@@ -1138,7 +1167,7 @@
 
                                 </div>
 
-                            @empty
+                                @empty
 
                                 <div style="
                                     grid-column:1/-1;
@@ -1148,44 +1177,88 @@
                                     Bu grupta öğrenci bulunmuyor.
                                 </div>
 
-                            @endforelse
+                                @endforelse
 
-                        </div>
+                            </div>
 
-                        <div class="actions">
+                            <div class="actions">
 
-                            <form
-                                method="POST"
-                                action="{{ route(
+                                <form
+                                    method="POST"
+                                    action="{{ route(
                                     'admin.student-course-groups.notes',
                                     $group
-                                ) }}"
-                            >
-                                @csrf
-                                @method('PUT')
+                                ) }}">
+                                    @csrf
+                                    @method('PUT')
 
-                                <textarea
-                                    name="notes"
-                                    rows="2"
-                                    placeholder="Grup notu..."
-                                >{{ $group->notes }}</textarea>
+                                    <textarea
+                                        name="notes"
+                                        rows="2"
+                                        placeholder="Grup notu...">{{ $group->notes }}</textarea>
 
-                                <button
-                                    type="submit"
-                                    class="button button-secondary"
-                                    style="margin-top:7px;"
-                                >
-                                    Notu Kaydet
-                                </button>
-                            </form>
+                                    <button
+                                        type="submit"
+                                        class="button button-secondary"
+                                        style="margin-top:7px;">
+                                        Notu Kaydet
+                                    </button>
+                                </form>
 
-                            <form
-                                method="POST"
-                                action="{{ route(
-                                    'admin.student-course-groups.status',
-                                    $group
-                                ) }}"
-                            >
+                                @if(!$confirmed)
+
+                                <form
+                                    method="POST"
+                                    action="{{ route(
+                                        'admin.student-course-groups.status',
+                                        $group
+                                        ) }}">
+                                    @csrf
+                                    @method('PUT')
+
+                                    <div class="field">
+                                        <label>
+                                            GRUP DURUMU
+                                        </label>
+
+                                        <select name="status">
+                                            <option
+                                                value="1"
+                                                {{ $status === 1 ? 'selected' : '' }}>
+                                                Taslak
+                                            </option>
+
+                                            <option
+                                                value="2"
+                                                {{ $status === 2 ? 'selected' : '' }}>
+                                                Aktif
+                                            </option>
+
+                                            <option
+                                                value="4"
+                                                {{ $status === 4 ? 'selected' : '' }}>
+                                                Kapalı
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        class="button button-primary"
+                                        style="margin-top:7px;width:100%;">
+                                        Durumu Kaydet
+                                    </button>
+                                </form>
+
+                                @else
+
+                                <div>
+                                    <span class="badge badge-closed">
+                                        🔒 Durum kilitli
+                                    </span>
+                                </div>
+
+                                @endif
                                 @csrf
                                 @method('PUT')
 
@@ -1198,22 +1271,19 @@
 
                                         <option
                                             value="1"
-                                            {{ $status === 1 ? 'selected' : '' }}
-                                        >
+                                            {{ $status === 1 ? 'selected' : '' }}>
                                             Taslak
                                         </option>
 
                                         <option
                                             value="2"
-                                            {{ $status === 2 ? 'selected' : '' }}
-                                        >
+                                            {{ $status === 2 ? 'selected' : '' }}>
                                             Aktif
                                         </option>
 
                                         <option
                                             value="4"
-                                            {{ $status === 4 ? 'selected' : '' }}
-                                        >
+                                            {{ $status === 4 ? 'selected' : '' }}>
                                             Kapalı
                                         </option>
 
@@ -1224,182 +1294,181 @@
                                 <button
                                     type="submit"
                                     class="button button-primary"
-                                    style="margin-top:7px;width:100%;"
-                                >
+                                    style="margin-top:7px;width:100%;">
                                     Durumu Kaydet
                                 </button>
 
-                            </form>
+                                </form>
 
-                            <div>
+                                <div>
 
-                                @if($status !== 4)
+                                    @if($confirmed)
+
+                                    <span class="badge badge-closed">
+                                        🔒 Grup kesinleştirildi
+                                    </span>
+
+                                    @elseif($status !== 4)
 
                                     <button
                                         type="button"
                                         class="button button-danger"
                                         style="width:100%;"
-                                        onclick="openCloseModal({{ $group->id }}, {{ $studentCount }})"
-                                    >
+                                        onclick="openCloseModal({{ $group->id }}, {{ $studentCount }})">
                                         Kapat ve Yeniden Dağıt
                                     </button>
 
-                                @else
+                                    @else
 
                                     <span class="badge badge-closed">
                                         Grup kapalı
                                     </span>
 
-                                @endif
+                                    @endif
+
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
+                    </article>
 
-                </article>
-
-                <form
-                    id="close-form-{{ $group->id }}"
-                    method="POST"
-                    action="{{ route(
+                    <form
+                        id="close-form-{{ $group->id }}"
+                        method="POST"
+                        action="{{ route(
                         'admin.student-course-groups.close-redistribute',
                         $group
                     ) }}"
-                    style="display:none;"
-                >
-                    @csrf
-                </form>
+                        style="display:none;">
+                        @csrf
+                    </form>
 
-            @endforeach
+                    @endforeach
 
-        </section>
+            </section>
 
-    @empty
+            @empty
 
-        <div class="empty">
-            Henüz grup oluşturulmadı.
-            Yukarıdaki
-            <strong>Grupları Oluştur / Yenile</strong>
-            düğmesini kullanabilirsiniz.
-        </div>
+            <div class="empty">
+                Henüz grup oluşturulmadı.
+                Yukarıdaki
+                <strong>Grupları Oluştur</strong>
+                düğmesini kullanabilirsiniz.
+            </div>
 
-    @endforelse
+            @endforelse
 
-</main>
+    </main>
 
-<div
-    class="modal-backdrop"
-    id="closeModal"
->
-    <div class="modal">
+    <div
+        class="modal-backdrop"
+        id="closeModal">
+        <div class="modal">
 
-        <h3>
-            Grubu kapat?
-        </h3>
+            <h3>
+                Grubu kapat?
+            </h3>
 
-        <p id="closeModalText">
-            Bu işlem grubun öğrencilerini yeniden dağıtmayı
-            deneyecek.
-        </p>
+            <p id="closeModalText">
+                Bu işlem grubun öğrencilerini yeniden dağıtmayı
+                deneyecek.
+            </p>
 
-        <div class="modal-actions">
+            <div class="modal-actions">
 
-            <button
-                type="button"
-                class="button button-secondary"
-                onclick="closeModal()"
-            >
-                İptal
-            </button>
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    onclick="closeModal()">
+                    İptal
+                </button>
 
-            <button
-                type="button"
-                class="button button-danger"
-                id="confirmCloseButton"
-            >
-                Kapat ve Dağıt
-            </button>
+                <button
+                    type="button"
+                    class="button button-danger"
+                    id="confirmCloseButton">
+                    Kapat ve Dağıt
+                </button>
+
+            </div>
 
         </div>
-
     </div>
-</div>
 
-<script>
-    function toggleMoveBox(placementId)
-    {
-        const box =
-            document.getElementById(
-                `move-box-${placementId}`
-            );
+    <script>
+        function toggleMoveBox(placementId) {
+            const box =
+                document.getElementById(
+                    `move-box-${placementId}`
+                );
 
-        if (!box) {
-            return;
+            if (!box) {
+                return;
+            }
+
+            box.style.display =
+                box.style.display === 'none' ?
+                'block' :
+                'none';
         }
 
-        box.style.display =
-            box.style.display === 'none'
-                ? 'block'
-                : 'none';
-    }
+        let pendingCloseGroupId = null;
 
-    let pendingCloseGroupId = null;
+        function openCloseModal(
+            groupId,
+            studentCount
+        ) {
+            pendingCloseGroupId =
+                groupId;
 
-    function openCloseModal(
-        groupId,
-        studentCount
-    ) {
-        pendingCloseGroupId =
-            groupId;
+            const text =
+                document.getElementById(
+                    'closeModalText'
+                );
 
-        const text =
-            document.getElementById(
-                'closeModalText'
+            text.textContent =
+                `${studentCount} öğrencinin uygun gruplara yeniden dağıtılması denenecek. ` +
+                `Tüm öğrenciler taşınamazsa grup kapatılmayacaktır.`;
+
+            document
+                .getElementById('closeModal')
+                .classList.add('open');
+        }
+
+        function closeModal() {
+            pendingCloseGroupId = null;
+
+            document
+                .getElementById('closeModal')
+                .classList.remove('open');
+        }
+
+        document
+            .getElementById('confirmCloseButton')
+            .addEventListener(
+                'click',
+                function() {
+
+                    if (!pendingCloseGroupId) {
+                        return;
+                    }
+
+                    const form =
+                        document.getElementById(
+                            `close-form-${pendingCloseGroupId}`
+                        );
+
+                    if (!form) {
+                        return;
+                    }
+
+                    form.submit();
+                }
             );
-
-        text.textContent =
-            `${studentCount} öğrencinin uygun gruplara yeniden dağıtılması denenecek. ` +
-            `Tüm öğrenciler taşınamazsa grup kapatılmayacaktır.`;
-
-        document
-            .getElementById('closeModal')
-            .classList.add('open');
-    }
-
-    function closeModal()
-    {
-        pendingCloseGroupId = null;
-
-        document
-            .getElementById('closeModal')
-            .classList.remove('open');
-    }
-
-    document
-        .getElementById('confirmCloseButton')
-        .addEventListener(
-            'click',
-            function () {
-
-                if (!pendingCloseGroupId) {
-                    return;
-                }
-
-                const form =
-                    document.getElementById(
-                        `close-form-${pendingCloseGroupId}`
-                    );
-
-                if (!form) {
-                    return;
-                }
-
-                form.submit();
-            }
-        );
-</script>
+    </script>
 
 </body>
+
 </html>

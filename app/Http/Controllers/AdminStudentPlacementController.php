@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicYear;
-use App\Models\CourseModule;
+use App\Models\StudentCourseHistory;
 use App\Models\StudentCoursePlacement;
 use App\Models\StudentCourseSelection;
 use App\Services\PlacementService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Models\StudentCourseGroup;
 
 class AdminStudentPlacementController extends Controller
 {
@@ -16,17 +18,50 @@ class AdminStudentPlacementController extends Controller
         Request $request,
         PlacementService $placementService
     ) {
-        $academicYears = AcademicYear::orderByDesc('name')->get();
+        $academicYears =
+            AcademicYear::orderByDesc('name')
+            ->get();
 
-        $academicYear = AcademicYear::where(
-            'id',
-            $request->input(
-                'academic_year_id',
-                AcademicYear::where('active', true)->value('id')
+        $academicYear =
+            AcademicYear::where(
+                'id',
+                $request->input(
+                    'academic_year_id',
+                    AcademicYear::where('active', true)->value('id')
+                )
             )
-        )->firstOrFail();
+            ->firstOrFail();
 
-        $selections = StudentCourseSelection::query()
+        $filter =
+            $request->input(
+                'filter',
+                'all'
+            );
+
+        $search =
+            trim(
+                (string) $request->input(
+                    'search',
+                    ''
+                )
+            );
+
+        $categoryId =
+            $request->filled('category_id')
+            ? (int) $request->input('category_id')
+            : null;
+
+        /*
+         * Öğrencilerin bütün seçimleri.
+         *
+         * Status 3 dahil:
+         * 3 = kesinleşmiş seçim.
+         *
+         * Böylece kesinleşmiş öğrenciler ekrandan
+         * kaybolmaz.
+         */
+        $selections =
+            StudentCourseSelection::query()
             ->with([
                 'student',
                 'course.category',
@@ -37,16 +72,64 @@ class AdminStudentPlacementController extends Controller
                 'academic_year_id',
                 $academicYear->id
             )
-            ->whereIn('status', [1, 2])
-            ->orderBy('student_id')
-            ->orderBy('course_id')
+            ->whereIn(
+                'status',
+                [1, 2, 3]
+            )
+            ->when(
+                $search !== '',
+                function ($query) use ($search) {
+                    $query->whereHas(
+                        'student',
+                        function ($studentQuery) use ($search) {
+                            $studentQuery
+                                ->where(
+                                    'first_name',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'last_name',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'student_number',
+                                    'like',
+                                    "%{$search}%"
+                                );
+                        }
+                    );
+                }
+            )
+            ->when(
+                $categoryId !== null,
+                function ($query) use ($categoryId) {
+                    $query->whereHas(
+                        'course',
+                        function ($courseQuery) use ($categoryId) {
+                            $courseQuery->where(
+                                'course_category_id',
+                                $categoryId
+                            );
+                        }
+                    );
+                }
+            )
             ->get();
 
-        $placements = StudentCoursePlacement::query()
+        /*
+         * Nihai placement kayıtları.
+         *
+         * Selection yerine placement sonuç
+         * ekranın esas verisidir.
+         */
+        $placements =
+            StudentCoursePlacement::query()
             ->with([
-                'selection',
+                'selection.course.category',
                 'student',
-                'course',
+                'course.category',
                 'moduleGroup',
                 'module',
             ])
@@ -54,87 +137,483 @@ class AdminStudentPlacementController extends Controller
                 'academic_year_id',
                 $academicYear->id
             )
-            ->get()
-            ->keyBy('student_course_selection_id');
+            ->get();
 
-        $rows = $selections->map(
-            function (StudentCourseSelection $selection) use (
-                $placementService,
-                $placements
-            ) {
-                $placement =
-                    $placements->get($selection->id);
-
-                $suggestedModule =
-                    $placement?->module
-                    ??
-                    $placementService->suggestedModule(
-                        $selection->student,
-                        $selection
-                    );
-
-                return [
-                    'selection' => $selection,
-                    'placement' => $placement,
-                    'suggestedModule' => $suggestedModule,
-                ];
-            }
-        );
-
-        $requiredPlacementCount =
+        /*
+         * Öğrenci + kategori bazında grupla.
+         *
+         * Böylece:
+         *
+         * Mehmet + ITB
+         * Mehmet + DAD
+         * Mehmet + KSS
+         *
+         * ayrı birer kontrol kaydı olur.
+         */
+        $categoryRows =
             $selections
-            ->where('preference_order', 1)
-            ->count();
+            ->groupBy(function ($selection) {
+                $categoryId =
+                    $selection->course
+                    ?->course_category_id;
 
-        $placedCategoryKeys =
-            $placements
-            ->filter(
-                fn($placement) =>
-                (int) $placement->status === 2
-            )
+                return
+                    $selection->student_id
+                    . ':'
+                    . $categoryId;
+            })
             ->map(
-                function ($placement) {
-                    $categoryId =
-                        $placement
-                        ->selection
-                        ?->course
-                        ?->course_category_id
-                        ??
-                        $placement
-                        ->course
-                        ?->course_category_id;
+                function (Collection $categorySelections) use (
+                    $placements,
+                    $placementService
+                ) {
+                    $first =
+                        $categorySelections->first();
 
-                    return
-                        $placement->student_id
-                        . ':'
-                        . $categoryId;
+                    $student =
+                        $first->student;
+
+                    $category =
+                        $first->course->category;
+
+                    /*
+                         * Tercih sırası kesin olarak:
+                         * 1 → 2 → 3
+                         */
+                    $categorySelections =
+                        $categorySelections
+                        ->sortBy(
+                            fn($selection) =>
+                            (int) $selection->preference_order
+                        )
+                        ->values();
+
+                    /*
+                         * Bu öğrenci + kategoriye ait
+                         * placement'ları bul.
+                         *
+                         * Normal durumda placement,
+                         * tercihlerden birine bağlıdır.
+                         */
+                    $selectionIds =
+                        $categorySelections
+                        ->pluck('id')
+                        ->map(
+                            fn($id) => (int) $id
+                        );
+
+                    $categoryPlacements =
+                        $placements
+                        ->filter(
+                            function ($placement) use (
+                                $selectionIds
+                            ) {
+                                return
+                                    $selectionIds->contains(
+                                        (int) $placement
+                                            ->student_course_selection_id
+                                    );
+                            }
+                        )
+                        ->values();
+
+                    /*
+                         * Normalde yalnızca bir nihai placement
+                         * bulunması gerekir.
+                         *
+                         * Birden fazla varsa en son kayıt,
+                         * tek sonuç kabul edilir.
+                         */
+                    $placement =
+                        $categoryPlacements
+                        ->sortByDesc('id')
+                        ->first();
+
+                    /*
+                         * Nihai placement bulunmuşsa,
+                         * hangi tercih üzerinden geldiğini bul.
+                         */
+                    $placementPreference =
+                        null;
+
+                    if ($placement) {
+                        $matchedSelection =
+                            $categorySelections->first(
+                                fn($selection) =>
+                                (int) $selection->id
+                                    ===
+                                    (int) $placement
+                                        ->student_course_selection_id
+                            );
+
+                        if ($matchedSelection) {
+                            $placementPreference =
+                                (int) $matchedSelection
+                                    ->preference_order;
+                        }
+                    }
+
+                    /*
+                         * Placement yoksa 1. tercih için
+                         * sistem modül önerisini göster.
+                         */
+                    $firstPreference =
+                        $categorySelections->first(
+                            fn($selection) =>
+                            (int) $selection->preference_order === 1
+                        );
+
+                    $suggestedModule =
+                        null;
+
+                    if (
+                        ! $placement
+                        &&
+                        $firstPreference
+                    ) {
+                        $suggestedModule =
+                            $placementService->suggestedModule(
+                                $student,
+                                $firstPreference
+                            );
+                    }
+
+                    $notes =
+                        (string) (
+                            $placement?->notes
+                            ?? ''
+                        );
+
+                    $isConfirmed =
+                        $placement
+                        &&
+                        (int) $placement->status === 3;
+
+                    $isAutomaticAlternative =
+                        $placement
+                        &&
+                        str_contains(
+                            $notes,
+                            'otomatik'
+                        );
+
+                    $isManualChange =
+                        $placement
+                        &&
+                        str_contains(
+                            $notes,
+                            'manuel olarak değiştirildi'
+                        );
+
+                    /*
+                         * Placement var ama placement'ın dersi,
+                         * öğrencinin ilgili tercihlerindeki dersten
+                         * farklıysa alternatif yerleşimdir.
+                         */
+                    $isAlternative =
+                        false;
+
+                    if ($placement) {
+                        $isAlternative =
+                            ! $categorySelections->contains(
+                                fn($selection) =>
+                                (int) $selection->course_id
+                                    ===
+                                    (int) $placement->course_id
+                            );
+                    }
+
+                    return [
+                        'student' =>
+                        $student,
+
+                        'student_id' =>
+                        $student->id,
+
+                        'category' =>
+                        $category,
+
+                        'category_id' =>
+                        $category?->id,
+
+                        'selections' =>
+                        $categorySelections,
+
+                        'placement' =>
+                        $placement,
+
+                        'placement_preference' =>
+                        $placementPreference,
+
+                        'suggestedModule' =>
+                        $suggestedModule,
+
+                        'isConfirmed' =>
+                        $isConfirmed,
+
+                        'isAutomaticAlternative' =>
+                        $isAutomaticAlternative,
+
+                        'isManualChange' =>
+                        $isManualChange,
+
+                        'isAlternative' =>
+                        $isAlternative,
+
+                        'complete' =>
+                        $placement !== null,
+                    ];
                 }
             )
+            ->sortBy(function ($row) {
+                return sprintf(
+                    '%010d-%010d',
+                    (int) $row['student_id'],
+                    (int) ($row['category']?->sort_order ?? 999)
+                );
+            })
+            ->values();
+
+        /*
+         * Filtreler.
+         */
+        $categoryRows =
+            match ($filter) {
+                'missing' =>
+                $categoryRows
+                    ->filter(
+                        fn($row) =>
+                        ! $row['placement']
+                    )
+                    ->values(),
+
+                'automatic' =>
+                $categoryRows
+                    ->filter(
+                        fn($row) =>
+                        $row['isAutomaticAlternative']
+                    )
+                    ->values(),
+
+                'manual' =>
+                $categoryRows
+                    ->filter(
+                        fn($row) =>
+                        $row['isManualChange']
+                    )
+                    ->values(),
+
+                'confirmed' =>
+                $categoryRows
+                    ->filter(
+                        fn($row) =>
+                        $row['isConfirmed']
+                    )
+                    ->values(),
+
+                default =>
+                $categoryRows,
+            };
+
+        /*
+         * Genel özet.
+         */
+        $totalStudents =
+            $categoryRows
+            ->pluck('student_id')
             ->unique()
+            ->count();
+
+        $totalCategories =
+            $categoryRows
+            ->pluck('category_id')
+            ->filter()
+            ->unique()
+            ->count();
+
+        $totalRows =
+            $categoryRows->count();
+
+        $placedRows =
+            $categoryRows
+            ->filter(
+                fn($row) =>
+                $row['placement'] !== null
+            )
+            ->count();
+
+        $missingRows =
+            $categoryRows
+            ->whereNull('placement')
+            ->count();
+
+        $automaticRows =
+            $categoryRows
+            ->filter(
+                fn($row) =>
+                $row['isAutomaticAlternative']
+            )
+            ->count();
+
+        $manualRows =
+            $categoryRows
+            ->filter(
+                fn($row) =>
+                $row['isManualChange']
+            )
+            ->count();
+
+        $confirmedRows =
+            $categoryRows
+            ->filter(
+                fn($row) =>
+                $row['isConfirmed']
+            )
+            ->count();
+
+        /*
+         * Tercih dağılımı.
+         *
+         * Placement hangi tercihe bağlıysa
+         * ona göre say.
+         */
+        $preference1Count =
+            $categoryRows
+            ->filter(
+                fn($row) =>
+                $row['placement']
+                    &&
+                    (int) $row['placement_preference'] === 1
+            )
+            ->count();
+
+        $preference2Count =
+            $categoryRows
+            ->filter(
+                fn($row) =>
+                $row['placement']
+                    &&
+                    (int) $row['placement_preference'] === 2
+            )
+            ->count();
+
+        $preference3Count =
+            $categoryRows
+            ->filter(
+                fn($row) =>
+                $row['placement']
+                    &&
+                    (int) $row['placement_preference'] === 3
+            )
+            ->count();
+
+        /*
+         * Kesinleştirme için gereken toplam öğrenci-kategori.
+         *
+         * Filtrelenmiş sonuç üzerinden değil,
+         * bütün kategori kayıtlarından hesaplanmalı.
+         */
+        $allCategoryRows =
+            $selections
+            ->groupBy(function ($selection) {
+                return
+                    $selection->student_id
+                    . ':'
+                    . (
+                        $selection
+                        ->course
+                        ?->course_category_id
+                    );
+            });
+
+        $requiredPlacementCount =
+            $allCategoryRows->count();
+
+        $placedCategoryKeys =
+            $allCategoryRows
+            ->filter(
+                function (Collection $categorySelections) use (
+                    $placements
+                ) {
+                    $selectionIds =
+                        $categorySelections
+                        ->pluck('id')
+                        ->map(
+                            fn($id) => (int) $id
+                        );
+
+                    return $placements->contains(
+                        function ($placement) use (
+                            $selectionIds
+                        ) {
+                            return
+                                in_array(
+                                    (int) $placement->status,
+                                    [2, 3],
+                                    true
+                                )
+                                &&
+                                $selectionIds->contains(
+                                    (int) $placement
+                                        ->student_course_selection_id
+                                );
+                        }
+                    );
+                }
+            )
             ->count();
 
         $confirmReady =
             $requiredPlacementCount > 0
             &&
-            $placedCategoryKeys === $requiredPlacementCount;
+            $placedCategoryKeys ===
+            $requiredPlacementCount;
+
+        /*
+         * Filtrelerde kullanılacak kategoriler.
+         */
+        $categories =
+            $selections
+            ->map(
+                fn($selection) =>
+                $selection->course->category
+            )
+            ->filter()
+            ->unique('id')
+            ->sortBy('sort_order')
+            ->values();
 
         return view(
             'admin.student-placements.index',
             compact(
                 'academicYears',
                 'academicYear',
-                'rows',
-                'confirmReady',
+                'categoryRows',
+                'categories',
+                'filter',
+                'search',
+                'categoryId',
+                'totalStudents',
+                'totalCategories',
+                'totalRows',
+                'placedRows',
+                'missingRows',
+                'automaticRows',
+                'manualRows',
+                'confirmedRows',
+                'preference1Count',
+                'preference2Count',
+                'preference3Count',
                 'requiredPlacementCount',
-                'placedCategoryKeys'
+                'placedCategoryKeys',
+                'confirmReady'
             )
         );
     }
 
     /**
-     * Öğrencinin tercihine göre placement oluşturur/günceller.
-     *
-     * Burada history oluşturulmaz.
+     * Yalnızca gerçek bir placement gerektiğinde
+     * manuel olarak placement oluşturur/günceller.
      */
     public function place(
         Request $request,
@@ -155,14 +634,28 @@ class AdminStudentPlacementController extends Controller
             ],
         ]);
 
+        $placement =
+            StudentCoursePlacement::query()
+            ->where(
+                'student_course_selection_id',
+                $selection->id
+            )
+            ->first();
+
+        if (
+            $placement
+            &&
+            (int) $placement->status === 3
+        ) {
+            return back()->withErrors([
+                'Kesinleştirilmiş bir yerleşim değiştirilemez.',
+            ]);
+        }
+
         $moduleId =
             $validated['course_module_id']
             ?? null;
 
-        /*
-         * Eğer okul manuel modül seçmediyse
-         * sistem önerisini kullanır.
-         */
         $placement =
             $placementService->placeSelection(
                 $selection,
@@ -182,9 +675,6 @@ class AdminStudentPlacementController extends Controller
      * Kesinleştirme:
      *
      * Placement kayıtlarını history'ye aktarır.
-     *
-     * Bu işlem yalnızca placement'ın tamamı
-     * doğrulandıktan sonra yapılır.
      */
     public function confirm(
         Request $request,
@@ -192,7 +682,8 @@ class AdminStudentPlacementController extends Controller
     ) {
         DB::transaction(function () use ($academicYear) {
 
-            $placements = StudentCoursePlacement::query()
+            $placements =
+                StudentCoursePlacement::query()
                 ->with([
                     'selection',
                     'student',
@@ -220,10 +711,6 @@ class AdminStudentPlacementController extends Controller
 
             foreach ($placements as $placement) {
 
-                /*
-             * Kesinleştirme için gerçek yerleşimin
-             * temel alanları mutlaka dolu olmalı.
-             */
                 if (! $placement->course_id) {
                     abort(
                         422,
@@ -272,12 +759,6 @@ class AdminStudentPlacementController extends Controller
                     );
                 }
 
-                /*
-             * History'deki sınıf bilgisi placement'ın
-             * gerçek course_grade_option_id'sinden alınır.
-             *
-             * Burada artık selection->gradeOption kullanılmaz.
-             */
                 $gradeOption =
                     \App\Models\CourseGradeOption::query()
                     ->where(
@@ -300,13 +781,8 @@ class AdminStudentPlacementController extends Controller
                     );
                 }
 
-                /*
-             * Aynı öğrencinin bu eğitim yılında aynı
-             * gerçek ders + modül geçmişi zaten varsa
-             * ikinci kez history oluşturma.
-             */
                 $history =
-                    \App\Models\StudentCourseHistory::query()
+                    StudentCourseHistory::query()
                     ->where(
                         'student_id',
                         $placement->student_id
@@ -327,12 +803,6 @@ class AdminStudentPlacementController extends Controller
 
                 if ($history) {
 
-                    /*
-                 * Aynı yerleşimin tekrar kesinleştirilmesi
-                 * durumunda mevcut history'yi güncelle.
-                 *
-                 * Böylece duplicate history oluşmaz.
-                 */
                     $history->update([
                         'course_grade_option_id' =>
                         $placement
@@ -352,7 +822,7 @@ class AdminStudentPlacementController extends Controller
                     ]);
                 } else {
 
-                    \App\Models\StudentCourseHistory::create([
+                    StudentCourseHistory::create([
                         'student_id' =>
                         $placement->student_id,
 
@@ -383,9 +853,6 @@ class AdminStudentPlacementController extends Controller
                     ]);
                 }
 
-                /*
-             * Placement artık kesinleşmiş.
-             */
                 $placement->update([
                     'status' =>
                     3,
@@ -394,10 +861,6 @@ class AdminStudentPlacementController extends Controller
                     now(),
                 ]);
 
-                /*
-             * Placement hangi selection'dan geldiyse
-             * onu da kesinleşmiş kabul ediyoruz.
-             */
                 if ($placement->selection) {
                     $placement->selection->update([
                         'status' =>
@@ -406,13 +869,7 @@ class AdminStudentPlacementController extends Controller
                 }
             }
 
-            /*
-         * Kesinleşmiş gruplar artık aktif/kesinleşmiş
-         * durumda tutulur.
-         *
-         * Öğrencisi olmayan taslak gruplara dokunmuyoruz.
-         */
-            \App\Models\StudentCourseGroup::query()
+            StudentCourseGroup::query()
                 ->where(
                     'academic_year_id',
                     $academicYear->id

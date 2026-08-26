@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\AcademicYear;
 use App\Models\StudentCourseGroup;
 use App\Models\StudentCoursePlacement;
+use App\Models\StudentCourseSelection;
 use App\Services\GroupGenerationService;
 use App\Services\GroupManagementService;
+use App\Services\PlacementService;
 use Illuminate\Http\Request;
 use RuntimeException;
 
@@ -84,6 +86,235 @@ class AdminStudentCourseGroupController extends Controller
     }
 
     /**
+     * Manuel yerleştirme ekranı.
+     *
+     * Yerleştirilmiş ancak kesinleşmemiş kayıtları ve
+     * henüz yerleştirilmemiş öğrenci-kategori kayıtlarını gösterir.
+     */
+    public function manualPlacement(
+        Request $request,
+        PlacementService $placementService
+    ) {
+        $academicYears =
+            AcademicYear::orderByDesc('name')
+            ->get();
+
+        $academicYear =
+            AcademicYear::where(
+                'id',
+                $request->input(
+                    'academic_year_id',
+                    AcademicYear::where(
+                        'active',
+                        true
+                    )->value('id')
+                )
+            )
+            ->firstOrFail();
+
+        $search =
+            trim(
+                (string) $request->input(
+                    'search',
+                    ''
+                )
+            );
+
+        $selections =
+            StudentCourseSelection::query()
+            ->with([
+                'student',
+                'course.category',
+            ])
+            ->where(
+                'academic_year_id',
+                $academicYear->id
+            )
+            ->whereIn(
+                'status',
+                [1, 2, 3]
+            )
+            ->when(
+                $search !== '',
+                function ($query) use ($search) {
+                    $query->whereHas(
+                        'student',
+                        function ($studentQuery) use ($search) {
+                            $studentQuery
+                                ->where(
+                                    'first_name',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'last_name',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'student_number',
+                                    'like',
+                                    "%{$search}%"
+                                );
+                        }
+                    );
+                }
+            )
+            ->get();
+
+        $placements =
+            StudentCoursePlacement::query()
+            ->with([
+                'selection.course.category',
+                'student',
+                'course',
+                'group',
+                'module',
+            ])
+            ->where(
+                'academic_year_id',
+                $academicYear->id
+            )
+            ->whereIn(
+                'status',
+                [1, 2]
+            )
+            ->get()
+            ->keyBy(
+                'student_course_selection_id'
+            );
+
+        /*
+     * Öğrenci + kategori bazında grupla.
+     */
+        $studentCategories =
+            $selections
+            ->groupBy(function ($selection) {
+                return
+                    $selection->student_id
+                    . ':'
+                    . (
+                        $selection
+                        ->course
+                        ?->course_category_id
+                    );
+            })
+            ->map(
+                function ($categorySelections) use (
+                    $placements
+                ) {
+                    $first =
+                        $categorySelections->first();
+
+                    $category =
+                        $first
+                        ->course
+                        ?->category;
+
+                    $selectionIds =
+                        $categorySelections
+                        ->pluck('id');
+
+                    /*
+                     * Bu kategori için mevcut
+                     * herhangi bir yerleştirme var mı?
+                     */
+                    $placement =
+                        $categorySelections
+                        ->map(
+                            fn($selection) =>
+                            $placements->get(
+                                $selection->id
+                            )
+                        )
+                        ->filter()
+                        ->sortByDesc('id')
+                        ->first();
+
+                    /*
+                     * Tercihleri 1 → 2 → 3 sırala.
+                     */
+                    $sortedSelections =
+                        $categorySelections
+                        ->sortBy(
+                            fn($selection) =>
+                            (int)
+                            $selection
+                                ->preference_order
+                        )
+                        ->values();
+
+                    return [
+                        'student' =>
+                        $first->student,
+
+                        'student_id' =>
+                        $first->student_id,
+
+                        'category' =>
+                        $category,
+
+                        'category_id' =>
+                        $category?->id,
+
+                        'selections' =>
+                        $sortedSelections,
+
+                        'placement' =>
+                        $placement,
+                    ];
+                }
+            )
+            ->sortBy(function ($row) {
+                return sprintf(
+                    '%010d-%010d',
+                    (int) $row['student_id'],
+                    (int) (
+                        $row['category']
+                        ?->sort_order
+                        ?? 999
+                    )
+                );
+            })
+            ->values();
+
+        /*
+     * Manuel ekranda kullanılabilecek gruplar.
+     */
+        $activeGroups =
+            StudentCourseGroup::query()
+            ->with([
+                'course.category',
+                'moduleGroup',
+                'module',
+            ])
+            ->where(
+                'academic_year_id',
+                $academicYear->id
+            )
+            ->whereIn(
+                'status',
+                [1, 2]
+            )
+            ->orderBy('course_id')
+            ->orderBy('course_module_group_id')
+            ->orderBy('course_module_id')
+            ->orderBy('weekly_hours')
+            ->orderBy('group_number')
+            ->get();
+
+        return view(
+            'admin.student-course-groups.manual-placement',
+            compact(
+                'academicYears',
+                'academicYear',
+                'studentCategories',
+                'activeGroups',
+                'search'
+            )
+        );
+    }
+    /**
      * Öğrenci tercihlerinden otomatik grupları oluşturur.
      */
     public function generate(
@@ -104,12 +335,40 @@ class AdminStudentCourseGroupController extends Controller
             ],
         ]);
 
-        $result = $service->generate(
-            (int) $validated['academic_year_id'],
-            $validated['maximum_students_per_group'] !== null
-                ? (int) $validated['maximum_students_per_group']
-                : null
-        );
+        $academicYearId =
+            (int) $validated['academic_year_id'];
+
+        /*
+     * Bu eğitim yılında daha önce grup oluşturulmuşsa
+     * yeniden otomatik dağıtım yapma.
+     *
+     * Böylece yönetici aynı butona yanlışlıkla
+     * tekrar basarak mevcut dağılımı değiştiremez.
+     */
+        $existingGroupCount =
+            StudentCourseGroup::query()
+            ->where(
+                'academic_year_id',
+                $academicYearId
+            )
+            ->count();
+
+        if ($existingGroupCount > 0) {
+            return back()->withErrors([
+                'Bu eğitim yılı için zaten ' .
+                    $existingGroupCount .
+                    ' grup oluşturulmuş. ' .
+                    'Mevcut grupları silmeden yeniden grup oluşturamazsınız.',
+            ]);
+        }
+
+        $result =
+            $service->generate(
+                $academicYearId,
+                $validated['maximum_students_per_group'] !== null
+                    ? (int) $validated['maximum_students_per_group']
+                    : null
+            );
 
         $message =
             $result['selection_count'] .
@@ -117,7 +376,7 @@ class AdminStudentCourseGroupController extends Controller
             $result['group_count'] .
             ' grup ve ' .
             $result['placement_count'] .
-            ' öğrenci yerleştirmesi oluşturuldu.';
+            ' öğrenci-kategori yerleştirmesi oluşturuldu.';
 
         if (
             isset($result['preference2_count'])
@@ -127,7 +386,7 @@ class AdminStudentCourseGroupController extends Controller
             $message .=
                 ' ' .
                 $result['preference2_count'] .
-                ' öğrenci 2. tercihe yerleştirildi.';
+                ' öğrenci-kategori 2. tercihe yerleştirildi.';
         }
 
         if (
@@ -138,7 +397,7 @@ class AdminStudentCourseGroupController extends Controller
             $message .=
                 ' ' .
                 $result['preference3_count'] .
-                ' öğrenci 3. tercihe yerleştirildi.';
+                ' öğrenci-kategori 3. tercihe yerleştirildi.';
         }
 
         if (
@@ -149,7 +408,7 @@ class AdminStudentCourseGroupController extends Controller
             $message .=
                 ' ' .
                 $result['fallback_count'] .
-                ' öğrenci aynı kategori içindeki mevcut uygun gruba otomatik aktarıldı.';
+                ' öğrenci-kategori aynı kategori içindeki mevcut uygun gruba otomatik aktarıldı.';
         }
 
         if (
@@ -160,7 +419,7 @@ class AdminStudentCourseGroupController extends Controller
             $message .=
                 ' ' .
                 $result['unresolved_count'] .
-                ' öğrenci hâlâ manuel kontrol gerektiriyor.';
+                ' öğrenci-kategori hâlâ manuel yerleştirme gerektiriyor.';
         }
 
         return back()->with(
@@ -321,6 +580,148 @@ class AdminStudentCourseGroupController extends Controller
             'success',
             $result['moved'] .
                 ' öğrenci diğer uygun gruplara dağıtıldı ve grup kapatıldı.'
+        );
+    }
+
+    /**
+     * Yerleştirmesi olmayan öğrenci-kategori için
+     * manuel yerleştirme oluşturur.
+     */
+    public function manualPlace(
+        Request $request,
+        StudentCourseSelection $selection,
+        PlacementService $placementService,
+        GroupManagementService $groupManagementService
+    ) {
+        $validated =
+            $request->validate([
+                'target_group_id' => [
+                    'required',
+                    'integer',
+                    'exists:student_course_groups,id',
+                ],
+            ]);
+
+        $targetGroup =
+            StudentCourseGroup::query()
+            ->with([
+                'course.category',
+                'moduleGroup',
+                'module',
+            ])
+            ->findOrFail(
+                $validated['target_group_id']
+            );
+
+        if (
+            $targetGroup->confirmed_at !== null
+            ||
+            ! in_array(
+                (int) $targetGroup->status,
+                [1, 2],
+                true
+            )
+        ) {
+            return back()->withErrors([
+                'Seçilen grup aktif değildir veya kesinleşmiştir.',
+            ]);
+        }
+
+        $selectionCategoryId =
+            $selection
+            ->course
+            ?->course_category_id;
+
+        $targetCategoryId =
+            $targetGroup
+            ->course
+            ?->course_category_id;
+
+        if (
+            ! $selectionCategoryId
+            ||
+            ! $targetCategoryId
+            ||
+            (int) $selectionCategoryId
+            !==
+            (int) $targetCategoryId
+        ) {
+            return back()->withErrors([
+                'Öğrenci yalnızca aynı kategori içindeki bir gruba yerleştirilebilir.',
+            ]);
+        }
+
+        /*
+     * Aynı öğrenci-kategori için zaten
+     * bir yerleştirme varsa yeni kayıt oluşturma.
+     */
+        $existingPlacement =
+            StudentCoursePlacement::query()
+            ->where(
+                'student_course_selection_id',
+                $selection->id
+            )
+            ->whereIn(
+                'status',
+                [1, 2]
+            )
+            ->first();
+
+        if ($existingPlacement) {
+            try {
+                $groupManagementService->moveStudent(
+                    $existingPlacement,
+                    $targetGroup
+                );
+
+                return back()->with(
+                    'success',
+                    "{$selection->student->first_name} " .
+                        "{$selection->student->last_name} öğrencisinin yerleştirmesi güncellendi."
+                );
+            } catch (RuntimeException $e) {
+                return back()->withErrors([
+                    $e->getMessage(),
+                ]);
+            }
+        }
+
+        /*
+     * Önce seçim üzerinden bir yerleştirme oluştur.
+     *
+     * Ardından mevcut taşıma servisini kullanarak
+     * hedef grubun gerçek ders/program/modül/saat
+     * bilgilerini placement'a aktar.
+     */
+        $placement =
+            $placementService->placeSelection(
+                $selection,
+                null,
+                'Manuel yerleştirme.'
+            );
+
+        try {
+
+            $groupManagementService->moveStudent(
+                $placement,
+                $targetGroup
+            );
+        } catch (RuntimeException $e) {
+
+            $placement->delete();
+
+            return back()->withErrors([
+                $e->getMessage(),
+            ]);
+        }
+
+        return back()->with(
+            'success',
+            "{$selection->student->first_name} " .
+                "{$selection->student->last_name} öğrencisi " .
+                "{$targetGroup->course->name} / Grup " .
+                "{$targetGroup->group_number} " .
+                'grubuna manuel olarak yerleştirildi.'
         );
     }
 }
