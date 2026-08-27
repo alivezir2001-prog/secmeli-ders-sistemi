@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminCourseOfferingController;
 use App\Http\Controllers\AdminCourseController;
 use App\Http\Controllers\AdminStudentPlacementController;
 use App\Http\Controllers\AdminStudentCourseGroupController;
+use App\Http\Controllers\AdminStudentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -139,6 +140,27 @@ Route::put('/yonetim/dersler/{course}/moduller/{module}', [
     ->middleware('admin')
     ->name('admin.courses.modules.update');
 
+Route::get('/yonetim/ogrenciler/import', [
+    AdminStudentController::class,
+    'importForm',
+])
+    ->middleware('admin')
+    ->name('admin.students.import');
+
+Route::post('/yonetim/ogrenciler/import/preview', [
+    AdminStudentController::class,
+    'importPreview',
+])
+    ->middleware('admin')
+    ->name('admin.students.import.preview');
+
+Route::post('/yonetim/ogrenciler/import/execute', [
+    AdminStudentController::class,
+    'importExecute',
+])
+    ->middleware('admin')
+    ->name('admin.students.import.execute');
+
 Route::get(
     '/yonetim/ogrenci-yerlestirmeleri',
     [AdminStudentPlacementController::class, 'index']
@@ -207,3 +229,31 @@ Route::post(
     'yonetim/ogrenci-gruplari/{group}/kapat-ve-dagit',
     [\App\Http\Controllers\AdminStudentCourseGroupController::class, 'closeAndRedistribute']
 )->name('admin.student-course-groups.close-redistribute');
+
+Route::get('/yonetim/ogrenciler', [
+    AdminStudentController::class,
+    'index',
+])
+    ->middleware('admin')
+    ->name('admin.students.index');
+
+Route::post('/yonetim/ogrenciler', [
+    AdminStudentController::class,
+    'store',
+])
+    ->middleware('admin')
+    ->name('admin.students.store');
+
+Route::put('/yonetim/ogrenciler/{student}', [
+    AdminStudentController::class,
+    'update',
+])
+    ->middleware('admin')
+    ->name('admin.students.update');
+
+Route::put('/yonetim/ogrenciler/{student}/durum', [
+    AdminStudentController::class,
+    'updateStatus',
+])
+    ->middleware('admin')
+    ->name('admin.students.status');
