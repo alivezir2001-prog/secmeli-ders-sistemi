@@ -103,7 +103,7 @@
 
         .filter-grid {
             display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr auto;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
             gap: 10px;
             align-items: end;
         }
@@ -281,76 +281,6 @@
             display: block;
         }
 
-        .student-modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: rgba(15, 23, 42, .45);
-            z-index: 1000;
-        }
-
-        .student-modal.open {
-            display: flex;
-        }
-
-        .student-modal-dialog {
-            width: min(560px, 100%);
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-            background: white;
-            border-radius: 14px;
-            border: 1px solid #dbe3ec;
-            box-shadow: 0 20px 60px rgba(15, 23, 42, .25);
-        }
-
-        .student-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            padding: 16px 18px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .student-modal-header h3 {
-            margin: 0;
-            font-size: 17px;
-        }
-
-        .modal-close {
-            width: 34px;
-            height: 34px;
-            border: 0;
-            border-radius: 8px;
-            background: #e2e8f0;
-            color: #334155;
-            font-size: 20px;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-        .student-modal-body {
-            padding: 18px;
-        }
-
-        .student-modal-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .student-modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 18px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-        }
-
         .add-panel h3 {
             margin: 0 0 15px;
             font-size: 17px;
@@ -368,6 +298,76 @@
             display: flex;
             justify-content: flex-end;
             gap: 8px;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .45);
+            z-index: 1000;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .student-modal {
+            width: min(680px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, .2);
+        }
+
+        .student-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 22px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .student-modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .student-modal-header p {
+            margin: 5px 0 0;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .modal-close {
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .student-modal form {
+            padding: 20px 22px 22px;
+        }
+
+        .edit-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 18px;
         }
 
         @media (max-width: 900px) {
@@ -388,10 +388,6 @@
         }
 
         @media (max-width: 600px) {
-
-            .student-modal-grid {
-                grid-template-columns: 1fr;
-            }
 
             .container {
                 padding-left: 12px;
@@ -486,6 +482,24 @@
 
                     @endif
 
+                    @if($grade !== 'all')
+
+                    <input
+                        type="hidden"
+                        name="grade"
+                        value="{{ $grade }}">
+
+                    @endif
+
+                    @if($section !== 'all')
+
+                    <input
+                        type="hidden"
+                        name="section"
+                        value="{{ $section }}">
+
+                    @endif
+
                     <select
                         name="academic_year_id"
                         class="year-select"
@@ -568,7 +582,58 @@
                     </div>
 
 
-                    <div></div>
+                    <div class="field">
+
+                        <label>
+                            SINIF
+                        </label>
+
+                        <select name="grade" id="gradeFilter">
+
+                            <option value="all">
+                                Tüm Sınıflar
+                            </option>
+
+                            @foreach($gradeOptions as $gradeOption)
+
+                            <option
+                                value="{{ $gradeOption }}"
+                                {{ (string) $grade === (string) $gradeOption ? 'selected' : '' }}>
+                                {{ $gradeOption }}. Sınıf
+                            </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            ŞUBE
+                        </label>
+
+                        <select name="section" id="sectionFilter">
+
+                            <option value="all">
+                                Tüm Şubeler
+                            </option>
+
+                            @foreach($sectionOptions as $sectionOption)
+
+                            <option
+                                value="{{ $sectionOption }}"
+                                {{ $section === $sectionOption ? 'selected' : '' }}>
+                                {{ $sectionOption }}
+                            </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
 
 
                     <button
@@ -889,15 +954,17 @@
                                     <button
                                         type="button"
                                         class="button button-secondary edit-student-button"
-                                        data-update-url="{{ route('admin.students.update', $student) }}"
-                                        data-student-number="{{ $student->student_number ?? '' }}"
-                                        data-national-id="{{ $student->national_id ?? '' }}"
+                                        data-student-id="{{ $student->id }}"
+                                        data-student-number="{{ $student->student_number }}"
+                                        data-national-id="{{ $student->national_id }}"
                                         data-first-name="{{ $student->first_name }}"
                                         data-last-name="{{ $student->last_name }}"
                                         data-grade="{{ $studentYear->grade ?? '' }}"
-                                        data-section="{{ $studentYear->section ?? '' }}">
+                                        data-section="{{ $studentYear->section ?? '' }}"
+                                        data-update-url="{{ route('admin.students.update', $student) }}">
                                         Düzenle
                                     </button>
+
 
                                     <form
                                         method="POST"
@@ -939,149 +1006,143 @@
     </main>
 
 
+    <div
+        id="sectionsByGradeData"
+        data-sections='@json($sectionsByGrade)'
+        style="display:none;"></div>
+
 
     <div
-        class="student-modal"
-        id="studentEditModal"
+        class="modal-backdrop"
+        id="editStudentModal"
         aria-hidden="true">
+
         <div
-            class="student-modal-dialog"
+            class="student-modal"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="studentEditModalTitle">
+            aria-labelledby="editStudentTitle">
+
             <div class="student-modal-header">
-                <h3 id="studentEditModalTitle">
-                    Öğrenci Bilgilerini Düzenle
-                </h3>
+
+                <div>
+                    <h3 id="editStudentTitle">
+                        Öğrenci Bilgilerini Düzenle
+                    </h3>
+
+                    <p id="editStudentSubtitle">
+                        Öğrenci bilgilerini güncelleyin.
+                    </p>
+                </div>
 
                 <button
                     type="button"
                     class="modal-close"
-                    id="closeStudentModal"
+                    id="closeEditStudentModal"
                     aria-label="Kapat">
                     ×
                 </button>
-            </div>
-
-            <div class="student-modal-body">
-
-                <form
-                    method="POST"
-                    id="studentEditForm">
-                    @csrf
-                    @method('PUT')
-
-                    <input
-                        type="hidden"
-                        name="academic_year_id"
-                        value="{{ $academicYear->id }}">
-
-                    <div class="student-modal-grid">
-
-                        <div class="field">
-                            <label for="editStudentNumber">
-                                ÖĞRENCİ NO
-                            </label>
-
-                            <input
-                                type="text"
-                                id="editStudentNumber"
-                                name="student_number"
-                                maxlength="30">
-                        </div>
-
-                        <div class="field">
-                            <label for="editNationalId">
-                                T.C. KİMLİK NO
-                            </label>
-
-                            <input
-                                type="text"
-                                id="editNationalId"
-                                name="national_id"
-                                maxlength="11">
-                        </div>
-
-                        <div class="field">
-                            <label for="editFirstName">
-                                AD
-                            </label>
-
-                            <input
-                                type="text"
-                                id="editFirstName"
-                                name="first_name"
-                                required>
-                        </div>
-
-                        <div class="field">
-                            <label for="editLastName">
-                                SOYAD
-                            </label>
-
-                            <input
-                                type="text"
-                                id="editLastName"
-                                name="last_name"
-                                required>
-                        </div>
-
-                        <div class="field">
-                            <label for="editGrade">
-                                SINIF
-                            </label>
-
-                            <select
-                                id="editGrade"
-                                name="grade"
-                                required>
-                                @for($grade = 1; $grade <= 12; $grade++)
-
-                                    <option
-                                    value="{{ $grade }}">
-                                    {{ $grade }}. Sınıf
-                                    </option>
-
-                                    @endfor
-                            </select>
-                        </div>
-
-                        <div class="field">
-                            <label for="editSection">
-                                ŞUBE
-                            </label>
-
-                            <input
-                                type="text"
-                                id="editSection"
-                                name="section"
-                                maxlength="20">
-                        </div>
-
-                    </div>
-
-                    <div class="student-modal-footer">
-
-                        <button
-                            type="button"
-                            class="button button-secondary"
-                            id="cancelStudentModal">
-                            Vazgeç
-                        </button>
-
-                        <button
-                            type="submit"
-                            class="button button-primary">
-                            Değişiklikleri Kaydet
-                        </button>
-
-                    </div>
-
-                </form>
 
             </div>
+
+            <form
+                method="POST"
+                id="editStudentForm">
+
+                @csrf
+                @method('PUT')
+
+                <input
+                    type="hidden"
+                    name="academic_year_id"
+                    value="{{ $academicYear->id }}">
+
+                <div class="edit-grid">
+
+                    <div class="field">
+                        <label>ÖĞRENCİ NO</label>
+                        <input
+                            type="text"
+                            name="student_number"
+                            id="editStudentNumber"
+                            maxlength="30">
+                    </div>
+
+                    <div class="field">
+                        <label>T.C. KİMLİK NO</label>
+                        <input
+                            type="text"
+                            name="national_id"
+                            id="editNationalId"
+                            maxlength="11">
+                    </div>
+
+                    <div class="field">
+                        <label>AD</label>
+                        <input
+                            type="text"
+                            name="first_name"
+                            id="editFirstName"
+                            required>
+                    </div>
+
+                    <div class="field">
+                        <label>SOYAD</label>
+                        <input
+                            type="text"
+                            name="last_name"
+                            id="editLastName"
+                            required>
+                    </div>
+
+                    <div class="field">
+                        <label>SINIF</label>
+                        <select
+                            name="grade"
+                            id="editGrade"
+                            required>
+                            @for($grade = 1; $grade <= 12; $grade++)
+                                <option value="{{ $grade }}">
+                                {{ $grade }}. Sınıf
+                                </option>
+                                @endfor
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>ŞUBE</label>
+                        <input
+                            type="text"
+                            name="section"
+                            id="editSection"
+                            maxlength="20">
+                    </div>
+
+                </div>
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        id="cancelEditStudent">
+                        Vazgeç
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="button button-primary">
+                        Değişiklikleri Kaydet
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
+
     </div>
+
 
     <script>
         function toggleAddStudent() {
@@ -1097,145 +1158,215 @@
             panel.classList.toggle('open');
         }
 
-        const studentEditModal =
+
+        const sectionsData =
             document.getElementById(
-                'studentEditModal'
+                'sectionsByGradeData'
             );
 
-        const studentEditForm =
+        const sectionsByGrade =
+            sectionsData ?
+            JSON.parse(
+                sectionsData.dataset.sections
+            ) : {};
+
+        const gradeFilter =
             document.getElementById(
-                'studentEditForm'
+                'gradeFilter'
             );
 
-        const editStudentNumber =
+        const sectionFilter =
             document.getElementById(
-                'editStudentNumber'
+                'sectionFilter'
             );
 
-        const editNationalId =
-            document.getElementById(
-                'editNationalId'
+        function updateSectionFilter() {
+            if (!gradeFilter || !sectionFilter) {
+                return;
+            }
+
+            const selectedGrade =
+                gradeFilter.value;
+
+            const currentSection =
+                sectionFilter.value;
+
+            sectionFilter.innerHTML = '';
+
+            const allOption =
+                document.createElement('option');
+
+            allOption.value = 'all';
+            allOption.textContent = 'Tüm Şubeler';
+
+            sectionFilter.appendChild(
+                allOption
             );
 
-        const editFirstName =
+            if (
+                selectedGrade === 'all' ||
+                !sectionsByGrade[selectedGrade]
+            ) {
+                sectionFilter.value = 'all';
+                return;
+            }
+
+            sectionsByGrade[selectedGrade]
+                .forEach(section => {
+
+                    const option =
+                        document.createElement('option');
+
+                    option.value = section;
+                    option.textContent = section;
+
+                    if (
+                        section === currentSection
+                    ) {
+                        option.selected = true;
+                    }
+
+                    sectionFilter.appendChild(
+                        option
+                    );
+                });
+
+            const sectionStillExists =
+                Array.from(
+                    sectionFilter.options
+                ).some(
+                    option =>
+                    option.value === currentSection
+                );
+
+            if (!sectionStillExists) {
+                sectionFilter.value = 'all';
+            }
+        }
+
+        if (gradeFilter) {
+            gradeFilter.addEventListener(
+                'change',
+                updateSectionFilter
+            );
+        }
+
+        updateSectionFilter();
+
+
+        const editModal =
             document.getElementById(
-                'editFirstName'
+                'editStudentModal'
             );
 
-        const editLastName =
+        const editForm =
             document.getElementById(
-                'editLastName'
+                'editStudentForm'
             );
 
-        const editGrade =
+        const closeEditButton =
             document.getElementById(
-                'editGrade'
+                'closeEditStudentModal'
             );
 
-        const editSection =
+        const cancelEditButton =
             document.getElementById(
-                'editSection'
-            );
-
-        const closeStudentModalButton =
-            document.getElementById(
-                'closeStudentModal'
-            );
-
-        const cancelStudentModalButton =
-            document.getElementById(
-                'cancelStudentModal'
+                'cancelEditStudent'
             );
 
         function closeStudentModal() {
-            if (!studentEditModal) {
+            if (!editModal) {
                 return;
             }
 
-            studentEditModal.classList.remove(
-                'open'
-            );
-
-            studentEditModal.setAttribute(
+            editModal.classList.remove('open');
+            editModal.setAttribute(
                 'aria-hidden',
                 'true'
             );
-
-            document.body.style.overflow = '';
         }
 
         function openStudentModal(button) {
-            if (!studentEditModal || !studentEditForm) {
+            if (!editModal || !editForm) {
                 return;
             }
 
-            studentEditForm.action =
+            editForm.action =
                 button.dataset.updateUrl;
 
-            editStudentNumber.value =
+            document.getElementById(
+                    'editStudentNumber'
+                ).value =
                 button.dataset.studentNumber || '';
 
-            editNationalId.value =
+            document.getElementById(
+                    'editNationalId'
+                ).value =
                 button.dataset.nationalId || '';
 
-            editFirstName.value =
+            document.getElementById(
+                    'editFirstName'
+                ).value =
                 button.dataset.firstName || '';
 
-            editLastName.value =
+            document.getElementById(
+                    'editLastName'
+                ).value =
                 button.dataset.lastName || '';
 
-            editGrade.value =
+            document.getElementById(
+                    'editGrade'
+                ).value =
                 button.dataset.grade || '';
 
-            editSection.value =
+            document.getElementById(
+                    'editSection'
+                ).value =
                 button.dataset.section || '';
 
-            studentEditModal.classList.add(
-                'open'
-            );
+            document.getElementById(
+                    'editStudentSubtitle'
+                ).textContent =
+                (button.dataset.firstName || '') +
+                ' ' +
+                (button.dataset.lastName || '');
 
-            studentEditModal.setAttribute(
+            editModal.classList.add('open');
+            editModal.setAttribute(
                 'aria-hidden',
                 'false'
             );
 
-            document.body.style.overflow = 'hidden';
-
-            editFirstName.focus();
         }
 
         document
-            .querySelectorAll(
-                '.edit-student-button'
-            )
+            .querySelectorAll('.edit-student-button')
             .forEach(button => {
                 button.addEventListener(
                     'click',
-                    function() {
-                        openStudentModal(this);
-                    }
+                    () => openStudentModal(button)
                 );
             });
 
-        if (closeStudentModalButton) {
-            closeStudentModalButton.addEventListener(
+        if (closeEditButton) {
+            closeEditButton.addEventListener(
                 'click',
                 closeStudentModal
             );
         }
 
-        if (cancelStudentModalButton) {
-            cancelStudentModalButton.addEventListener(
+        if (cancelEditButton) {
+            cancelEditButton.addEventListener(
                 'click',
                 closeStudentModal
             );
         }
 
-        if (studentEditModal) {
-            studentEditModal.addEventListener(
+        if (editModal) {
+            editModal.addEventListener(
                 'click',
-                function(event) {
-                    if (event.target === studentEditModal) {
+                event => {
+                    if (event.target === editModal) {
                         closeStudentModal();
                     }
                 }
@@ -1244,11 +1375,11 @@
 
         document.addEventListener(
             'keydown',
-            function(event) {
+            event => {
                 if (
                     event.key === 'Escape' &&
-                    studentEditModal &&
-                    studentEditModal.classList.contains('open')
+                    editModal &&
+                    editModal.classList.contains('open')
                 ) {
                     closeStudentModal();
                 }

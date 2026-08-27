@@ -44,6 +44,18 @@ class AdminStudentController extends Controller
                 'active'
             );
 
+        $grade =
+            $request->input(
+                'grade',
+                'all'
+            );
+
+        $section =
+            $request->input(
+                'section',
+                'all'
+            );
+
         $students =
             Student::query()
             ->with([
@@ -95,9 +107,139 @@ class AdminStudentController extends Controller
                     false
                 )
             )
+
+            ->when(
+                $grade !== 'all',
+                function ($query) use ($grade, $academicYear) {
+                    $query->whereHas(
+                        'studentYears',
+                        function ($studentYearQuery) use (
+                            $grade,
+                            $academicYear
+                        ) {
+                            $studentYearQuery
+                                ->where(
+                                    'academic_year_id',
+                                    $academicYear->id
+                                )
+                                ->where(
+                                    'grade',
+                                    (int) $grade
+                                )
+                                ->where(
+                                    'active',
+                                    true
+                                );
+                        }
+                    );
+                }
+            )
+            ->when(
+                $section !== 'all',
+                function ($query) use ($section, $academicYear) {
+                    $query->whereHas(
+                        'studentYears',
+                        function ($studentYearQuery) use (
+                            $section,
+                            $academicYear
+                        ) {
+                            $studentYearQuery
+                                ->where(
+                                    'academic_year_id',
+                                    $academicYear->id
+                                )
+                                ->where(
+                                    'section',
+                                    $section
+                                )
+                                ->where(
+                                    'active',
+                                    true
+                                );
+                        }
+                    );
+                }
+            )
+
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
+
+        $gradeOptions =
+            \App\Models\StudentYear::query()
+            ->where(
+                'academic_year_id',
+                $academicYear->id
+            )
+            ->where(
+                'active',
+                true
+            )
+            ->select('grade')
+            ->distinct()
+            ->orderBy('grade')
+            ->pluck('grade');
+
+        $sectionOptions =
+            \App\Models\StudentYear::query()
+            ->where(
+                'academic_year_id',
+                $academicYear->id
+            )
+            ->where(
+                'active',
+                true
+            )
+            ->whereNotNull('section')
+            ->where(
+                'section',
+                '!=',
+                ''
+            )
+            ->when(
+                $grade !== 'all',
+                fn($query) =>
+                $query->where(
+                    'grade',
+                    (int) $grade
+                )
+            )
+            ->select('section')
+            ->distinct()
+            ->orderBy('section')
+            ->pluck('section');
+
+        $sectionsByGrade =
+            \App\Models\StudentYear::query()
+            ->where(
+                'academic_year_id',
+                $academicYear->id
+            )
+            ->where(
+                'active',
+                true
+            )
+            ->whereNotNull('section')
+            ->where(
+                'section',
+                '!=',
+                ''
+            )
+            ->select(
+                'grade',
+                'section'
+            )
+            ->distinct()
+            ->orderBy('grade')
+            ->orderBy('section')
+            ->get()
+            ->groupBy('grade')
+            ->map(
+                fn($items) =>
+                $items
+                    ->pluck('section')
+                    ->values()
+            );
 
         return view(
             'admin.students.index',
@@ -106,7 +248,12 @@ class AdminStudentController extends Controller
                 'academicYears',
                 'academicYear',
                 'search',
-                'status'
+                'status',
+                'grade',
+                'section',
+                'gradeOptions',
+                'sectionOptions',
+                'sectionsByGrade'
             )
         );
     }
