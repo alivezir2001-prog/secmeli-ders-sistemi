@@ -1212,4 +1212,145 @@ class AdminStudentController extends Controller
                     . ' öğrencide değişiklik yoktu.'
             );
     }
+
+    public function bulkActivate(Request $request)
+    {
+        $validated =
+            $request->validate([
+                'student_ids' => [
+                    'required',
+                    'array',
+                    'min:1',
+                ],
+
+                'student_ids.*' => [
+                    'integer',
+                    'exists:students,id',
+                ],
+            ]);
+
+        $count =
+            Student::query()
+            ->whereIn(
+                'id',
+                $validated['student_ids']
+            )
+            ->update([
+                'active' => true,
+            ]);
+
+        return back()->with(
+            'success',
+            $count . ' öğrenci aktif hale getirildi.'
+        );
+    }
+
+    public function bulkDeactivate(Request $request)
+    {
+        $validated =
+            $request->validate([
+                'student_ids' => [
+                    'required',
+                    'array',
+                    'min:1',
+                ],
+
+                'student_ids.*' => [
+                    'integer',
+                    'exists:students,id',
+                ],
+            ]);
+
+        $count =
+            Student::query()
+            ->whereIn(
+                'id',
+                $validated['student_ids']
+            )
+            ->update([
+                'active' => false,
+            ]);
+
+        return back()->with(
+            'success',
+            $count . ' öğrenci pasif hale getirildi.'
+        );
+    }
+
+    public function bulkUpdateClass(Request $request)
+    {
+        $validated =
+            $request->validate([
+                'student_ids' => [
+                    'required',
+                    'array',
+                    'min:1',
+                ],
+
+                'student_ids.*' => [
+                    'integer',
+                    'exists:students,id',
+                ],
+
+                'academic_year_id' => [
+                    'required',
+                    'exists:academic_years,id',
+                ],
+
+                'grade' => [
+                    'required',
+                    'integer',
+                    'min:1',
+                    'max:12',
+                ],
+
+                'section' => [
+                    'nullable',
+                    'string',
+                    'max:20',
+                ],
+            ]);
+
+        $updatedCount = 0;
+
+        DB::transaction(function () use (
+            $validated,
+            &$updatedCount
+        ) {
+            foreach (
+                $validated['student_ids']
+                as $studentId
+            ) {
+                Student::findOrFail(
+                    $studentId
+                )
+                    ->studentYears()
+                    ->updateOrCreate(
+                        [
+                            'academic_year_id' =>
+                            $validated['academic_year_id'],
+                        ],
+                        [
+                            'grade' =>
+                            (int) $validated['grade'],
+
+                            'section' =>
+                            $validated['section']
+                                ?: null,
+
+                            'active' =>
+                            true,
+                        ]
+                    );
+
+                $updatedCount++;
+            }
+        });
+
+        return back()->with(
+            'success',
+            $updatedCount
+                . ' öğrencinin sınıf/şube bilgisi güncellendi.'
+        );
+    }
 }

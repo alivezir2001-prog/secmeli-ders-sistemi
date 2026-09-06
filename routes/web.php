@@ -257,3 +257,24 @@ Route::put('/yonetim/ogrenciler/{student}/durum', [
 ])
     ->middleware('admin')
     ->name('admin.students.status');
+
+Route::post('/yonetim/ogrenciler/toplu/aktif-yap', [
+    AdminStudentController::class,
+    'bulkActivate',
+])
+    ->middleware('admin')
+    ->name('admin.students.bulk.activate');
+
+Route::post('/yonetim/ogrenciler/toplu/pasif-yap', [
+    AdminStudentController::class,
+    'bulkDeactivate',
+])
+    ->middleware('admin')
+    ->name('admin.students.bulk.deactivate');
+
+Route::post('/yonetim/ogrenciler/toplu/sinif-degistir', [
+    AdminStudentController::class,
+    'bulkUpdateClass',
+])
+    ->middleware('admin')
+    ->name('admin.students.bulk.class');

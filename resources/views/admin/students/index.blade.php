@@ -257,6 +257,106 @@
             justify-content: center;
         }
 
+        .selection-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .selection-summary {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .selection-summary strong {
+            color: #0f172a;
+        }
+
+        .selection-clear {
+            display: none;
+            border: 0;
+            background: transparent;
+            color: #245b91;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .selection-clear.visible {
+            display: inline;
+        }
+
+        .bulk-toolbar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            background: #eef6ff;
+            border-bottom: 1px solid #dbeafe;
+        }
+
+        .bulk-toolbar.visible {
+            display: flex;
+        }
+
+        .bulk-toolbar-info {
+            color: #1e3a8a;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .bulk-toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .bulk-toolbar-actions form {
+            margin: 0;
+        }
+
+        .bulk-class-modal {
+            width: min(520px, 100%);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, .2);
+        }
+
+        .bulk-class-form {
+            padding: 20px 22px 22px;
+        }
+
+        .bulk-class-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .select-col {
+            width: 46px;
+            text-align: center;
+        }
+
+        .student-checkbox,
+        #selectAllStudents {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #245b91;
+        }
+
+        .student-row.selected {
+            background: #eff6ff;
+        }
+
         .edit-form,
         .status-form {
             margin: 0;
@@ -381,6 +481,20 @@
                 grid-template-columns: 1fr 1fr;
             }
 
+            .selection-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .bulk-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .bulk-toolbar-actions {
+                width: 100%;
+            }
+
             .add-grid {
                 grid-template-columns: 1fr 1fr;
             }
@@ -395,7 +509,8 @@
             }
 
             .filter-grid,
-            .add-grid {
+            .add-grid,
+            .bulk-class-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -845,6 +960,86 @@
 
             @else
 
+            <div class="selection-toolbar">
+
+                <div class="selection-summary">
+                    <strong id="selectedStudentCount">0</strong> öğrenci seçildi
+                </div>
+
+                <button
+                    type="button"
+                    id="clearStudentSelection"
+                    class="selection-clear">
+                    Seçimi Temizle
+                </button>
+
+            </div>
+
+            <div
+                class="bulk-toolbar"
+                id="bulkToolbar">
+
+                <div class="bulk-toolbar-info">
+                    Seçilen öğrenciler için toplu işlem:
+                </div>
+
+                <div class="bulk-toolbar-actions">
+
+                    <form
+                        method="POST"
+                        action="{{ route('admin.students.bulk.activate') }}"
+                        id="bulkActivateForm">
+
+                        @csrf
+
+                        <button
+                            type="submit"
+                            class="button button-success"
+                            onclick="
+                                return confirm(
+                                    'Seçilen öğrencileri aktif yapmak istediğinize emin misiniz?'
+                                );
+                            ">
+                            Aktif Yap
+                        </button>
+
+                        <div id="bulkActivateInputs"></div>
+
+                    </form>
+
+                    <form
+                        method="POST"
+                        action="{{ route('admin.students.bulk.deactivate') }}"
+                        id="bulkDeactivateForm">
+
+                        @csrf
+
+                        <button
+                            type="submit"
+                            class="button button-danger"
+                            onclick="
+                                return confirm(
+                                    'Seçilen öğrencileri pasif yapmak istediğinize emin misiniz?'
+                                );
+                            ">
+                            Pasif Yap
+                        </button>
+
+                        <div id="bulkDeactivateInputs"></div>
+
+                    </form>
+
+                    <button
+                        type="button"
+                        class="button button-primary"
+                        id="openBulkClassModal">
+                        Sınıf / Şube Değiştir
+                    </button>
+
+                </div>
+
+            </div>
+
             <div class="table-wrap">
 
                 <table>
@@ -852,6 +1047,13 @@
                     <thead>
 
                         <tr>
+
+                            <th class="select-col">
+                                <input
+                                    type="checkbox"
+                                    id="selectAllStudents"
+                                    aria-label="Listelenen tüm öğrencileri seç">
+                            </th>
 
                             <th>
                                 ÖĞRENCİ
@@ -882,7 +1084,18 @@
                         $student->studentYears->first();
                         @endphp
 
-                        <tr>
+                        <tr class="student-row">
+
+                            <td class="select-col">
+
+                                <input
+                                    type="checkbox"
+                                    class="student-checkbox"
+                                    name="selected_students[]"
+                                    value="{{ $student->id }}"
+                                    aria-label="{{ $student->first_name }} {{ $student->last_name }} seç">
+
+                            </td>
 
                             <td>
 
@@ -1010,6 +1223,136 @@
         id="sectionsByGradeData"
         data-sections='@json($sectionsByGrade)'
         style="display:none;"></div>
+
+
+    <div
+        class="modal-backdrop"
+        id="bulkClassModal"
+        aria-hidden="true">
+
+        <div
+            class="bulk-class-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bulkClassTitle">
+
+            <div class="student-modal-header">
+
+                <div>
+
+                    <h3 id="bulkClassTitle">
+                        Toplu Sınıf / Şube Değişikliği
+                    </h3>
+
+                    <p id="bulkClassSubtitle">
+                        Seçilen öğrencilerin sınıf ve şube bilgilerini değiştirin.
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    id="closeBulkClassModal"
+                    aria-label="Kapat">
+                    ×
+                </button>
+
+            </div>
+
+            <form
+                method="POST"
+                action="{{ route('admin.students.bulk.class') }}"
+                id="bulkClassForm"
+                class="bulk-class-form">
+
+                @csrf
+
+                <input
+                    type="hidden"
+                    name="academic_year_id"
+                    value="{{ $academicYear->id }}">
+
+                <div
+                    id="bulkClassStudentInputs">
+                </div>
+
+                <div class="bulk-class-grid">
+
+                    <div class="field">
+
+                        <label>
+                            SINIF
+                        </label>
+
+                        <select
+                            name="grade"
+                            id="bulkGrade"
+                            required>
+
+                            @for($grade = 1; $grade <= 12; $grade++)
+
+                                <option value="{{ $grade }}">
+                                {{ $grade }}. Sınıf
+                                </option>
+
+                                @endfor
+
+                        </select>
+
+                    </div>
+
+                    <div class="field">
+
+                        <label>
+                            ŞUBE
+                        </label>
+
+                        <select
+                            name="section"
+                            id="bulkSection">
+
+                            <option value="">
+                                Şube seçiniz
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div
+                    style="
+                        margin-top:12px;
+                        color:#64748b;
+                        font-size:12px;
+                    "
+                    id="bulkSelectedStudentInfo">
+                </div>
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="button button-secondary"
+                        id="cancelBulkClass">
+                        Vazgeç
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="button button-primary">
+                        Değişiklikleri Uygula
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 
     <div
@@ -1254,6 +1597,524 @@
         updateSectionFilter();
 
 
+        const selectAllStudents =
+            document.getElementById(
+                'selectAllStudents'
+            );
+
+        const studentCheckboxes =
+            Array.from(
+                document.querySelectorAll(
+                    '.student-checkbox'
+                )
+            );
+
+        const selectedStudentCount =
+            document.getElementById(
+                'selectedStudentCount'
+            );
+
+        const clearStudentSelection =
+            document.getElementById(
+                'clearStudentSelection'
+            );
+
+        const bulkToolbar =
+            document.getElementById(
+                'bulkToolbar'
+            );
+
+        const bulkActivateInputs =
+            document.getElementById(
+                'bulkActivateInputs'
+            );
+
+        const bulkDeactivateInputs =
+            document.getElementById(
+                'bulkDeactivateInputs'
+            );
+
+        function updateBulkInputs(container) {
+            if (!container) {
+                return;
+            }
+
+            container.innerHTML = '';
+
+            studentCheckboxes
+                .filter(checkbox => checkbox.checked)
+                .forEach(checkbox => {
+                    const input =
+                        document.createElement('input');
+
+                    input.type = 'hidden';
+                    input.name = 'student_ids[]';
+                    input.value = checkbox.value;
+
+                    container.appendChild(input);
+                });
+        }
+
+        function updateStudentSelection() {
+            const selected =
+                studentCheckboxes.filter(
+                    checkbox => checkbox.checked
+                );
+
+            if (selectedStudentCount) {
+                selectedStudentCount.textContent =
+                    selected.length;
+            }
+
+            if (clearStudentSelection) {
+                clearStudentSelection.classList.toggle(
+                    'visible',
+                    selected.length > 0
+                );
+            }
+
+            if (bulkToolbar) {
+                bulkToolbar.classList.toggle(
+                    'visible',
+                    selected.length > 0
+                );
+            }
+
+            updateBulkInputs(
+                bulkActivateInputs
+            );
+
+            updateBulkInputs(
+                bulkDeactivateInputs
+            );
+
+            document
+                .querySelectorAll('.student-row')
+                .forEach(row => {
+                    const checkbox =
+                        row.querySelector(
+                            '.student-checkbox'
+                        );
+
+                    row.classList.toggle(
+                        'selected',
+                        Boolean(checkbox?.checked)
+                    );
+                });
+
+            if (selectAllStudents) {
+                const allSelected =
+                    studentCheckboxes.length > 0 &&
+                    selected.length ===
+                    studentCheckboxes.length;
+
+                const someSelected =
+                    selected.length > 0 &&
+                    !allSelected;
+
+                selectAllStudents.checked =
+                    allSelected;
+
+                selectAllStudents.indeterminate =
+                    someSelected;
+            }
+        }
+
+        if (selectAllStudents) {
+            selectAllStudents.addEventListener(
+                'change',
+                event => {
+                    studentCheckboxes
+                        .forEach(checkbox => {
+                            checkbox.checked =
+                                event.target.checked;
+                        });
+
+                    updateStudentSelection();
+                }
+            );
+        }
+
+        studentCheckboxes
+            .forEach(checkbox => {
+                checkbox.addEventListener(
+                    'change',
+                    updateStudentSelection
+                );
+            });
+
+        if (clearStudentSelection) {
+            clearStudentSelection.addEventListener(
+                'click',
+                () => {
+                    studentCheckboxes
+                        .forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+
+                    updateStudentSelection();
+                }
+            );
+        }
+
+        updateStudentSelection();
+
+
+        const bulkClassModal =
+            document.getElementById(
+                'bulkClassModal'
+            );
+
+        const openBulkClassButton =
+            document.getElementById(
+                'openBulkClassModal'
+            );
+
+        const closeBulkClassButton =
+            document.getElementById(
+                'closeBulkClassModal'
+            );
+
+        const cancelBulkClassButton =
+            document.getElementById(
+                'cancelBulkClass'
+            );
+
+        const bulkClassForm =
+            document.getElementById(
+                'bulkClassForm'
+            );
+
+        const bulkGrade =
+            document.getElementById(
+                'bulkGrade'
+            );
+
+        const bulkSection =
+            document.getElementById(
+                'bulkSection'
+            );
+
+        const bulkClassStudentInputs =
+            document.getElementById(
+                'bulkClassStudentInputs'
+            );
+
+        const bulkSelectedStudentInfo =
+            document.getElementById(
+                'bulkSelectedStudentInfo'
+            );
+
+
+        function getSelectedStudentIds() {
+            return studentCheckboxes
+                .filter(
+                    checkbox =>
+                    checkbox.checked
+                )
+                .map(
+                    checkbox =>
+                    checkbox.value
+                );
+        }
+
+
+        function updateBulkSectionOptions() {
+            if (
+                !bulkGrade ||
+                !bulkSection
+            ) {
+                return;
+            }
+
+            const selectedGrade =
+                bulkGrade.value;
+
+            const currentSection =
+                bulkSection.value;
+
+            bulkSection.innerHTML = '';
+
+            const defaultOption =
+                document.createElement(
+                    'option'
+                );
+
+            defaultOption.value = '';
+            defaultOption.textContent =
+                'Şube seçiniz';
+
+            bulkSection.appendChild(
+                defaultOption
+            );
+
+            const sections =
+                sectionsByGrade[selectedGrade] || [];
+
+            sections.forEach(
+                section => {
+                    const option =
+                        document.createElement(
+                            'option'
+                        );
+
+                    option.value =
+                        section;
+
+                    option.textContent =
+                        section;
+
+                    if (
+                        section ===
+                        currentSection
+                    ) {
+                        option.selected =
+                            true;
+                    }
+
+                    bulkSection.appendChild(
+                        option
+                    );
+                }
+            );
+
+            if (
+                currentSection &&
+                sections.indexOf(
+                    currentSection
+                ) === -1
+            ) {
+                bulkSection.value = '';
+            }
+        }
+
+
+        function closeBulkClassModal() {
+            if (!bulkClassModal) {
+                return;
+            }
+
+            bulkClassModal.classList.remove(
+                'open'
+            );
+
+            bulkClassModal.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+        }
+
+
+        function openBulkClassModal() {
+            const selectedCheckboxes =
+                studentCheckboxes.filter(
+                    checkbox => checkbox.checked
+                );
+
+            const selectedIds =
+                selectedCheckboxes.map(
+                    checkbox => checkbox.value
+                );
+
+            if (selectedIds.length === 0) {
+                return;
+            }
+
+            /*
+             * Seçilen öğrencilerin mevcut sınıf/şube
+             * bilgilerini satırdaki Düzenle butonundan al.
+             */
+            const selectedStudents =
+                selectedCheckboxes
+                .map(checkbox => {
+                    const row =
+                        checkbox.closest('.student-row');
+
+                    if (!row) {
+                        return null;
+                    }
+
+                    const editButton =
+                        row.querySelector(
+                            '.edit-student-button'
+                        );
+
+                    if (!editButton) {
+                        return null;
+                    }
+
+                    return {
+                        grade: editButton.dataset.grade || '',
+
+                        section: editButton.dataset.section || '',
+                    };
+                })
+                .filter(Boolean);
+
+            /*
+             * Modal formuna seçilen öğrencilerin ID'lerini ekle.
+             */
+            if (bulkClassStudentInputs) {
+                bulkClassStudentInputs.innerHTML = '';
+
+                selectedIds.forEach(
+                    studentId => {
+                        const input =
+                            document.createElement(
+                                'input'
+                            );
+
+                        input.type = 'hidden';
+                        input.name = 'student_ids[]';
+                        input.value = studentId;
+
+                        bulkClassStudentInputs.appendChild(
+                            input
+                        );
+                    }
+                );
+            }
+
+            /*
+             * Seçilen öğrencilerin tamamı aynı sınıftaysa
+             * modal o sınıfla açılsın.
+             *
+             * Farklı sınıflardalarsa ilk öğrencinin sınıfı
+             * başlangıç değeri olsun.
+             */
+            const grades =
+                selectedStudents
+                .map(
+                    student =>
+                    student.grade
+                )
+                .filter(
+                    grade =>
+                    grade !== ''
+                );
+
+            const firstGrade =
+                grades.length > 0 ?
+                grades[0] :
+                '5';
+
+            const allSameGrade =
+                grades.length > 0 &&
+                grades.every(
+                    grade =>
+                    grade === firstGrade
+                );
+
+            bulkGrade.value =
+                allSameGrade ?
+                firstGrade :
+                firstGrade;
+
+            /*
+             * Şube seçeneklerini sınıfa göre oluştur.
+             */
+            updateBulkSectionOptions();
+
+            /*
+             * Seçilen öğrencilerin tamamı aynı şubedeyse
+             * o şubeyi de başlangıçta seç.
+             */
+            const sections =
+                selectedStudents
+                .filter(
+                    student =>
+                    student.grade ===
+                    bulkGrade.value
+                )
+                .map(
+                    student =>
+                    student.section
+                )
+                .filter(
+                    section =>
+                    section !== ''
+                );
+
+            const firstSection =
+                sections.length > 0 ?
+                sections[0] :
+                '';
+
+            const allSameSection =
+                sections.length > 0 &&
+                sections.every(
+                    section =>
+                    section === firstSection
+                );
+
+            if (allSameSection) {
+                bulkSection.value =
+                    firstSection;
+            } else {
+                bulkSection.value =
+                    '';
+            }
+
+            if (bulkSelectedStudentInfo) {
+                bulkSelectedStudentInfo.textContent =
+                    selectedIds.length +
+                    ' öğrenci seçildi.';
+            }
+
+            bulkClassModal.classList.add(
+                'open'
+            );
+
+            bulkClassModal.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+        }
+
+
+        if (bulkGrade) {
+            bulkGrade.addEventListener(
+                'change',
+                updateBulkSectionOptions
+            );
+        }
+
+        if (openBulkClassButton) {
+            openBulkClassButton.addEventListener(
+                'click',
+                openBulkClassModal
+            );
+        }
+
+        if (closeBulkClassButton) {
+            closeBulkClassButton.addEventListener(
+                'click',
+                closeBulkClassModal
+            );
+        }
+
+        if (cancelBulkClassButton) {
+            cancelBulkClassButton.addEventListener(
+                'click',
+                closeBulkClassModal
+            );
+        }
+
+        if (bulkClassModal) {
+            bulkClassModal.addEventListener(
+                'click',
+                event => {
+                    if (
+                        event.target ===
+                        bulkClassModal
+                    ) {
+                        closeBulkClassModal();
+                    }
+                }
+            );
+        }
+
+
         const editModal =
             document.getElementById(
                 'editStudentModal'
@@ -1382,6 +2243,16 @@
                     editModal.classList.contains('open')
                 ) {
                     closeStudentModal();
+
+                    return;
+                }
+
+                if (
+                    event.key === 'Escape' &&
+                    bulkClassModal &&
+                    bulkClassModal.classList.contains('open')
+                ) {
+                    closeBulkClassModal();
                 }
             }
         );
